@@ -6,4 +6,6 @@ typedef struct FileContent {
     long size;
 } FileContent;
 
+FileContent read_file(char * filename);
+
 #endif

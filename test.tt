@@ -1,0 +1,12 @@
+-- single line comment
+-[ multiline
+comment ]-
+
+define function function_name as
+    (bit a, bit b) -> bit
+by
+    <body>
+done
+
+set a = 0 in
+set b = 1 in
