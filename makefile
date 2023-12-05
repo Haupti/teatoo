@@ -1,17 +1,20 @@
 BUILD=build
 TEST=test
 SRC=src
+LIB=lib
 
-SOURCES=$(wildcard $(SRC)/*.c)
-TEST_SOURCES=$(wildcard $(TEST)/*.c)
+SOURCES=$(wildcard $(SRC)/**/*.c) $(wildcard $(SRC)/*.c)
+TEST_SOURCES=$(wildcard $(TEST)/**/*.c) $(wildcard $(TEST)/*.c)
+LIB_SRC=$(wildcard $(LIB)/src/**/*.c) $(wildcard $(LIB)/src/*.c)
+LIB_TEST=$(wildcard $(LIB)/test/**/*.c) $(wildcard $(LIB)/test/*.c)
 
 build_prod:
 	gcc -o ./$(BUILD)/tt \
-		$(SOURCES) main.c
+		$(SOURCES) $(LIB_SRC) main.c
 
 build_test:
 	gcc -o ./$(BUILD)/test \
-		$(SOURCES) $(TEST_SOURCES)
+		$(SOURCES) $(LIB_TEST) $(TEST_SOURCES)
 
 test: build_test
 	./$(BUILD)/test
