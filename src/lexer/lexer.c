@@ -2,6 +2,7 @@
 #include <string.h>
 #include "lexerr.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef enum {
     SYMBOL,
@@ -24,7 +25,7 @@ TokenVec create_tokens(char * prog, int len){
 
 
     int i;
-    for(i = 0; i < len; i++){
+    for(i = 0; i <= len; i++){
         char c = prog[i];
 
         // read section
@@ -45,52 +46,52 @@ TokenVec create_tokens(char * prog, int len){
                 word_index += 1;
             }
             else { // word is therefor over and we can check what it is
-                if(strcmp(word, "IF")){
+                if(strcmp(word, "IF") == 0){
                     tokens[tokens_index] = new_token(IF);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "EQ")){
+                else if(strcmp(word, "EQ") == 0){
                     tokens[tokens_index] = new_token(EQ);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "NEQ")){
+                else if(strcmp(word, "NEQ") == 0){
                     tokens[tokens_index] = new_token(NEQ);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "TAKE")){
+                else if(strcmp(word, "TAKE") == 0){
                     tokens[tokens_index] = new_token(TAKE);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "PUT")){
+                else if(strcmp(word, "PUT") == 0){
                     tokens[tokens_index] = new_token(PUT);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "PEEK")){
+                else if(strcmp(word, "PEEK") == 0){
                     tokens[tokens_index] = new_token(PEEK);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "XOR")){
+                else if(strcmp(word, "XOR") == 0){
                     tokens[tokens_index] = new_token(XOR);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "RETURN")){
-                    tokens[tokens_index] = new_token(XOR);
+                else if(strcmp(word, "RETURN") == 0){
+                    tokens[tokens_index] = new_token(RETURN);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "EXEC")){
-                    tokens[tokens_index] = new_token(XOR);
+                else if(strcmp(word, "EXEC") == 0){
+                    tokens[tokens_index] = new_token(EXEC);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "OUTNUM")){
-                    tokens[tokens_index] = new_token(XOR);
+                else if(strcmp(word, "OUTNUM") == 0){
+                    tokens[tokens_index] = new_token(OUTNUM);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "OUTCHAR")){
-                    tokens[tokens_index] = new_token(XOR);
+                else if(strcmp(word, "OUTCHAR") == 0){
+                    tokens[tokens_index] = new_token(OUTCHAR);
                     tokens_index += 1;
                 }
-                else if(strcmp(word, "OUT")){
-                    tokens[tokens_index] = new_token(XOR);
+                else if(strcmp(word, "OUT") == 0){
+                    tokens[tokens_index] = new_token(OUT);
                     tokens_index += 1;
                 }
                 else { // must be an identifier then
@@ -99,10 +100,15 @@ TokenVec create_tokens(char * prog, int len){
                 }
                 memset(word, '\0', sizeof(word));
                 word_index = 0;
+                mode = SYMBOL;
             }
         }
 
-        else if(mode == SYMBOL){
+        if(c == '\0'){
+            break;
+        }
+
+        if(mode == SYMBOL){
             switch(c){
                 case '{':{
                     tokens[tokens_index] = new_token(SCOPE_OPEN);
@@ -130,12 +136,12 @@ TokenVec create_tokens(char * prog, int len){
                     break;
                 }
                 case '\n':{
-                    tokens[tokens_index] = new_token(TERM);
+                    tokens[tokens_index] = new_token(TERM_NL);
                     tokens_index += 1;
                     break;
                 }
                 case ';':{
-                    tokens[tokens_index] = new_token(TERM);
+                    tokens[tokens_index] = new_token(TERM_SEM);
                     tokens_index += 1;
                     break;
                 }
@@ -205,10 +211,10 @@ TokenVec create_tokens(char * prog, int len){
         }
     }
 
-    int tokens_size = sizeof(Token) * tokens_index + 1;
+    int tokens_size = sizeof(Token) * (tokens_index);
     Token * heap_tokens = malloc(tokens_size);
     memcpy(heap_tokens, tokens, tokens_size);
-    TokenVec vec = {tokens, tokens_index + 1};
+    TokenVec vec = {heap_tokens, tokens_index};
     return vec;
 }
 

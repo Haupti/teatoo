@@ -2,6 +2,7 @@
 #define ASSERT_HEADER
 
 #define ARRAY(...) {__VA_ARGS__}
+
 #define LEN(x) sizeof(x) / sizeof(x[0])
 
 #define COLOR_RED "\033[0;31m"
@@ -47,6 +48,29 @@
 };
 
 #define XTEST(x,y) {printf("    SKIPPED TEST "#x"\n"); }
+
+
+#define EXTRACTOR(x,y) x.y
+#define BY(x) x
+
+#define ASSERT_ARRS_EQUAL(x, x_len, y, y_len, by) \
+    assertion_count += 1;\
+    for(int i = 0; i < x_len; i++){\
+        if(x_len != y_len){\
+            failure_count += 1;\
+            printf(COLOR_RED);\
+            printf("    FAILURE IN TEST \"%s\". failed in assertion %d: arrays are not of same length.\n", test_name, assertion_count);\
+            printf(COLOR_RESET);\
+            break;\
+        }\
+        else if(EXTRACTOR(x[i], by) != EXTRACTOR(y[i], by)){\
+            failure_count += 1;\
+            printf(COLOR_RED);\
+            printf("    FAILURE IN TEST \"%s\". failed in assertion %d: expected elements at index %d to be equal, they are not.\n", test_name, assertion_count, i);\
+            printf(COLOR_RESET);\
+            break;\
+        }\
+    }\
 
 #define ASSERT_INT_EQUALS(x,y) {\
     assertion_count += 1;\
