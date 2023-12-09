@@ -78,4 +78,6 @@ typedef struct {
     int len;
 } TokenVec;
 
+void print_tknvec(TokenVec vec);
+
 #endif

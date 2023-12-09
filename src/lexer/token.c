@@ -1,6 +1,7 @@
 #include "token.h"
 #include "../utils/free.h"
 #include <string.h>
+#include <stdio.h>
 
 Token new_token(TokenType type){
     Token token = {type, NULL};
@@ -16,4 +17,11 @@ Token new_identifier_token(char * to_copy){
 
 void destroy_token(Token token){
     free_s(token.name);
+}
+
+void print_tknvec(TokenVec vec){
+    printf("VECTOR LENGTH: %d\n", vec.len);
+    for(int i =0; i<vec.len; i++){
+        printf("%s\n", TKN_STR(vec.arr[i]));
+    }
 }
