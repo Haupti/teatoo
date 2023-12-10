@@ -1,8 +1,8 @@
 #ifndef LEXER_HEADER
 #define LEXER_HEADER
 
-#include "token.h"
+#include "token_vector.h"
 
-TokenVec create_tokens(char * prog, int len);
+TokenVector create_tokens(char * prog, int len);
 
 #endif

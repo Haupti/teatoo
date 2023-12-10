@@ -39,9 +39,9 @@ MAP -- applies a operation to every element on the stack
 REVERSE -- reverses the stack on the scope
 NULL? <arg> -- checks if the given thing is NULL
 
-!! <arg> -- bitwise not on a a value
-&& <arg> <arg> -- bitwise and on values
-|| <arg> <arg> -- bitwise or on values
+! <arg> -- bitwise not on a a value
+& <arg> <arg> -- bitwise and on values
+| <arg> <arg> -- bitwise or on values
 XOR <arg> <arg> -- bitwise xor on a
 
 RETURN <arg> -- exits scope execution, returns the value
@@ -50,3 +50,9 @@ EXEC <arg> -- executes the scope
 OUTNUM <arg> -- prints number equivalent of a byte
 OUTCHAR <arg> -- prints char equivalent of a byte
 OUT <arg> -- just prints the byte e.g. OUT [0] prints 00000000
+
+## what it shold look like:
+
+a:{
+    IF (EQ([0], TAKE)) ()
+}

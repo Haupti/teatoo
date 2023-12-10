@@ -73,11 +73,5 @@ Token new_token(TokenType type);
 Token new_identifier_token(char * name);
 void destroy_token(Token token);
 
-typedef struct {
-    Token * arr;
-    int len;
-} TokenVec;
-
-void print_tknvec(TokenVec vec);
 
 #endif

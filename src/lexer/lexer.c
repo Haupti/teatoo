@@ -3,6 +3,7 @@
 #include "lexerr.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "token_vector.h"
 
 typedef enum {
     SYMBOL,
@@ -14,7 +15,7 @@ typedef enum {
 int is_word_start(char c);
 int is_word_character(char c);
 
-TokenVec create_tokens(char * prog, int len){
+TokenVector create_tokens(char * prog, int len){
     Token tokens[len];
     int tokens_index = 0;
 
@@ -214,7 +215,7 @@ TokenVec create_tokens(char * prog, int len){
     int tokens_size = sizeof(Token) * (tokens_index);
     Token * heap_tokens = malloc(tokens_size);
     memcpy(heap_tokens, tokens, tokens_size);
-    TokenVec vec = {heap_tokens, tokens_index};
+    TokenVector vec = {heap_tokens, tokens_index};
     return vec;
 }
 
