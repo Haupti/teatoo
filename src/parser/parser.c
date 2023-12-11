@@ -54,6 +54,28 @@ int find_scope_end(TokenSlice slice){
     return -1;
 }
 
+int find_statement_end(TokenSlice slice){
+    int sequence_counter = 0;
+    Token current;
+    for(int i = slice.start; i <= slice.end; i++){
+        current = slice.arr[i];
+        // statement can be ended by ')' but not if there was a '(' before within the same statement
+        // e.g. (IF [0] (TAKE))
+        // searching will start at IF but the ')' matching the '(' before the IF will also terminate the statement
+        if(sequence_counter == 0 && (current.type == TERM_NL || current.type == TERM_SEM || current.type == SCOPE_CLOSE || current.type == GRP_CLOSE)){
+            return i-1;
+        }
+        else if(current.type == GRP_OPEN){
+            sequence_counter += 1;
+        }
+        else if(current.type == GRP_CLOSE){
+            sequence_counter -= 1;
+        }
+    }
+    parse_err_at("statement did not end before end of current slice", slice.start);
+    return -1;
+}
+
 
 int find_matching_sequence_end(TokenSlice slice){
     TokenType start_type = slice.arr[slice.start].type;
@@ -293,24 +315,6 @@ GenericOp parse_op(TokenSlice slice){
     }
 }
 
-int find_statement_end(TokenSlice slice){
-    int sequence_counter = 0;
-    Token current;
-    for(int i = slice.start; i <= slice.end; i++){
-        current = slice.arr[i];
-        if(sequence_counter == 0 && (current.type == TERM_NL || current.type == TERM_SEM || current.type == SCOPE_CLOSE)){
-            return i;
-        }
-        else if(current.type == GRP_OPEN){
-            sequence_counter += 1;
-        }
-        else if(current.type == GRP_CLOSE){
-            sequence_counter -= 1;
-        }
-    }
-    parse_err_at("statement did not end before end of current slice", slice.start);
-    return -1;
-}
 
 Scope parse_scope(char * name, TokenSlice slice){
     if(slice.arr[slice.start].type != SCOPE_OPEN){
