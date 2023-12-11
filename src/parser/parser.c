@@ -313,14 +313,22 @@ int find_statement_end(TokenSlice slice){
 }
 
 Scope parse_scope(char * name, TokenSlice slice){
+    if(slice.arr[slice.start].type != SCOPE_OPEN){
+        err_at("expected scope definition start, cannot parse scope from here", slice.start);
+    }
     GenericOp * ops = NULL;
     int ops_count = 0;
 
-    int line_start = slice.start;
+    int line_start = slice.start + 1; // next to scope start
     TokenSlice rest;
-    int found_slice_end = 0;
-    while(!found_slice_end){
+    while(1){
+        // stop loop if on end
+        if(slice.arr[line_start].type == SCOPE_CLOSE){
+            break;
+        }
+
         rest = (TokenSlice) {slice.arr, line_start, slice.end};
+
         int statement_end = find_statement_end(rest);
         TokenSlice statement_slice = {slice.arr, line_start, statement_end};
         GenericOp op = parse_op(statement_slice);
@@ -331,10 +339,6 @@ Scope parse_scope(char * name, TokenSlice slice){
 
         line_start = statement_end + 1;
 
-        // stop loop
-        if(slice.arr[line_start].type == SCOPE_CLOSE){
-            found_slice_end = 1;
-        }
     }
 
     Statements statements = {ops, ops_count};

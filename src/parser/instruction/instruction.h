@@ -117,4 +117,6 @@ typedef struct Statements {
     int statements_len;
 } Statements;
 
+Statements new_statements(GenericOp * statements, size_t len);
+
 #endif
