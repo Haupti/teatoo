@@ -8,6 +8,7 @@
 #include "parser/internal_parse_scope_tests.h"
 #include "parser/internal_find_matching_sequence_end_tests.h"
 #include "parser/internal_find_statement_end_tests.h"
+#include "parser/internal_parse_op_tests.h"
 
 int main(){
     RUN_DESCRIBE_MODULE(lexer_tests);
@@ -16,6 +17,9 @@ int main(){
     RUN_DESCRIBE_MODULE(internal_find_scope_end_tests);
     RUN_DESCRIBE_MODULE(internal_find_matching_sequence_end_tests);
     RUN_DESCRIBE_MODULE(internal_find_statement_end_tests);
+
+
+    RUN_DESCRIBE_MODULE(internal_parse_op_tests);
 
     RUN_DESCRIBE_MODULE(parse_byte_tests);
     //RUN_DESCRIBE_MODULE(internal_parse_scope_tests);
