@@ -31,69 +31,73 @@ typedef struct Sequence {
     size_t op_count;
 } Sequence;
 
-Sequence new_byte_sequence(Byte byte);
-Sequence new_op_sequence(struct GenericOp * ops, size_t ops_count);
+typedef struct Argument {
+    Byte byte;
+    int is_byte;
+    Sequence sequence;
+    int is_sequence;
+} Argument;
 
 typedef struct Op_IF {
-    struct Sequence condition;
-    struct Sequence operation;
+    struct Argument condition;
+    struct Argument operation;
 } Op_IF;
 
 typedef struct Op_EQ {
-    struct Sequence first;
-    struct Sequence second;
+    struct Argument first;
+    struct Argument second;
 } Op_EQ;
 
 typedef struct Op_NEQ {
-    struct Sequence first;
-    struct Sequence second;
+    struct Argument first;
+    struct Argument second;
 } Op_NEQ;
 
 typedef struct Op_OR {
-    struct Sequence first;
-    struct Sequence second;
+    struct Argument first;
+    struct Argument second;
 } Op_OR;
 
 typedef struct Op_AND {
-    struct Sequence first;
-    struct Sequence second;
+    struct Argument first;
+    struct Argument second;
 } Op_AND;
 
 typedef struct Op_XOR {
-    struct Sequence first;
-    struct Sequence second;
+    struct Argument first;
+    struct Argument second;
 } Op_XOR;
 
 typedef struct Op_NOT {
-    struct Sequence first;
+    struct Argument first;
 } Op_NOT;
 
 typedef struct Op_TAKE {} Op_TAKE;
 
 typedef struct Op_PUT {
-    struct Sequence first;
+    struct Argument first;
 } Op_PUT;
 
 typedef struct Op_PEEK {} Op_PEEK;
 
 typedef struct Op_RETURN {
-    struct Sequence first;
+    struct Argument first;
 } Op_RETURN;
 
 typedef struct Op_EXEC {
-    struct Sequence first;
+    struct Argument first;
 } Op_EXEC;
 
 typedef struct Op_OUT {
-    struct Sequence first;
+    struct Argument first;
 } Op_OUT;
 
 typedef struct Op_OUTCHAR {
-    struct Sequence first;
+    struct Argument first;
 } Op_OUTCHAR;
 
 typedef struct Op_OUTNUM {
-    struct Sequence first;
+    struct Argument first;
 } Op_OUTNUM;
 
 union Op {

@@ -5,6 +5,5 @@
 
 int main(){
     RUN_DESCRIBE_MODULE(lexer_tests);
-    printf("%d\n", c);
     return EXIT_SUCCESS;
 }

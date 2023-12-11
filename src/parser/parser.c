@@ -48,33 +48,6 @@ typedef struct {
     int len;
 } OpVector;
 
-Sequence parse_sequence(TokenSlice slice){
-    // sequence either starts with ( then it contains multiple,
-    // or it starts with a instruction, then it only has this one instruction
-    exit(EXIT_FAILURE);
-}
-
-int expects_zero_args(TokenType type){
-    return type == TAKE
-            || type == PEEK;
-}
-
-int expects_one_arg(TokenType type){
-    return type == NOT
-            || type == RETURN
-            || type == EXEC
-            || type == PUT
-            || type == OUT
-            || type == OUTCHAR
-            || type == OUTNUM;
-}
-
-int expects_two_args(TokenType type){
-    return type == IF
-            || type == AND
-            || type == OR
-            || type == XOR;
-}
 
 int find_byte_end(TokenSlice slice){
     int start = slice.start;
@@ -148,8 +121,8 @@ int find_matching_sequence_end(TokenSlice slice){
 }
 
 typedef struct {
-    Sequence first;
-    Sequence second;
+    Argument first;
+    Argument second;
 } ArgumentPair;
 
 GenericOp parse_op(TokenSlice slice);
@@ -184,14 +157,6 @@ Byte parse_byte(TokenSlice slice){
     err_unexpected_token(slice.arr[slice.start + 9], slice.start + 9);
     return '\0';
 }
-
-typedef struct Argument {
-    Byte byte;
-    int is_byte;
-    Sequence sequence;
-    int is_sequence;
-} Argument;
-
 Argument new_sequence_argument(Sequence sequence){
     Argument arg = {'\0', 0, sequence, 1};
     return arg;
@@ -202,14 +167,42 @@ Argument new_byte_argument(Byte byte){
     return arg;
 }
 
+int find_statement_end(TokenSlice slice);
 Sequence parse_sequence_arg(TokenSlice slice){
+    // TODO duplicate code with parse scope ?
+    GenericOp * ops = NULL;
+    int ops_count = 0;
+
     if(slice.arr[slice.start].type != GRP_OPEN){
         err_at("cannot parse sequence if not at sequence start", slice.start);
     }
 
+    int line_start = slice.start;
+    TokenSlice rest;
+    int found_slice_end = 0;
+    while(!found_slice_end){
+        rest = (TokenSlice) {slice.arr, line_start, slice.end};
+        int statement_end = find_statement_end(rest);
+        TokenSlice statement_slice = {slice.arr, line_start, statement_end};
+        GenericOp op = parse_op(statement_slice);
+
+        ops_count += 1;
+        ops = checked_realloc(ops, sizeof(GenericOp) * (ops_count));
+        ops[ops_count-1] = op;
+
+        line_start = statement_end + 1;
+
+        // stop loop
+        if(slice.arr[line_start].type == GRP_CLOSE){
+            found_slice_end = 1;
+        }
+    }
+
+    Sequence seq = {ops, ops_count};
+    return seq;
 }
 
-Argument collect_one_sequence_arg(TokenSlice slice){
+Argument collect_one_argument(TokenSlice slice){
     if(slice.arr[slice.start].type == GRP_OPEN){
         int sequence_end = find_matching_sequence_end(slice);
         TokenSlice sequence_slice = {slice.arr, slice.start, sequence_end};
@@ -223,19 +216,44 @@ Argument collect_one_sequence_arg(TokenSlice slice){
     }
     else {
         err_at("expected '(' or a byte definition", slice.start);
+        return (Argument) {};
     }
 }
 
-ArgumentPair collect_two_sequence_args(TokenSlice slice){
-    // TODO
-    return (ArgumentPair){};
+ArgumentPair collect_two_arguments(TokenSlice slice){
+    int arg_start_pos = slice.start;
+    Argument args[2];
+    int i = 0;
+    while(i < 2){
+        if(slice.arr[arg_start_pos].type == GRP_OPEN){
+            int sequence_end = find_matching_sequence_end(slice);
+            TokenSlice sequence_slice = {slice.arr, arg_start_pos, sequence_end};
+            Sequence sequence = parse_sequence_arg(sequence_slice);
+            Argument arg = {'\0', 0, sequence, 1};
+            args[i] = arg;
+            arg_start_pos = sequence_end + 1;
+        }
+        else if(slice.arr[arg_start_pos].type == BYTE_START){
+            Byte byte = parse_byte(slice);
+            int byte_end = find_byte_end(slice);
+            TokenSlice byte_slice = {slice.arr, arg_start_pos, byte_end};
+            args[i] = new_byte_argument(byte);
+            arg_start_pos = byte_end + 1;
+        }
+        else {
+            err_at("expected '(' or a byte definition", slice.start);
+        }
+        i += 1;
+    }
+    ArgumentPair pair = {args[0], args[1]};
+    return pair;
 }
 
 GenericOp parse_op(TokenSlice slice){
     TokenSlice after_token = {slice.arr, slice.start + 1, slice.end};
     switch(after_token.arr[after_token.start].type){
         case EQ:{
-            ArgumentPair pair = collect_two_sequence_args(after_token);
+            ArgumentPair pair = collect_two_arguments(after_token);
 
             Op_EQ op_eq = {pair.first, pair.second};
             union Op op;
@@ -244,7 +262,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case NEQ:{
-            ArgumentPair pair = collect_two_sequence_args(after_token);
+            ArgumentPair pair = collect_two_arguments(after_token);
 
             Op_NEQ op_neq = {pair.first, pair.second};
             union Op op;
@@ -253,7 +271,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case AND:{
-            ArgumentPair pair = collect_two_sequence_args(after_token);
+            ArgumentPair pair = collect_two_arguments(after_token);
 
             Op_AND op_and = {pair.first, pair.second};
             union Op op;
@@ -262,7 +280,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case OR:{
-            ArgumentPair pair = collect_two_sequence_args(after_token);
+            ArgumentPair pair = collect_two_arguments(after_token);
 
             Op_OR op_or = {pair.first, pair.second};
             union Op op;
@@ -271,7 +289,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case XOR:{
-            ArgumentPair pair = collect_two_sequence_args(after_token);
+            ArgumentPair pair = collect_two_arguments(after_token);
 
             Op_XOR op_xor = {pair.first, pair.second};
             union Op op;
@@ -280,7 +298,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case IF:{
-            ArgumentPair pair = collect_two_sequence_args(after_token);
+            ArgumentPair pair = collect_two_arguments(after_token);
 
             Op_IF op_if = {pair.first, pair.second};
             union Op op;
@@ -289,49 +307,49 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case NOT:{
-            Op_NOT op_not = {collect_one_sequence_arg(after_token)};
+            Op_NOT op_not = {collect_one_argument(after_token)};
             union Op op;
             op.op_not = op_not;
             GenericOp gen_op = {OT_NOT, op};
             return gen_op;
         }
         case RETURN:{
-            Op_RETURN op_return = {collect_one_sequence_arg(after_token)};
+            Op_RETURN op_return = {collect_one_argument(after_token)};
             union Op op;
             op.op_return = op_return;
             GenericOp gen_op = {OT_RETURN, op};
             return gen_op;
         }
         case EXEC:{
-            Op_EXEC op_exec = {collect_one_sequence_arg(after_token)};
+            Op_EXEC op_exec = {collect_one_argument(after_token)};
             union Op op;
             op.op_exec = op_exec;
             GenericOp gen_op = {OT_EXEC, op};
             return gen_op;
         }
         case PUT:{
-            Op_PUT op_put = {collect_one_sequence_arg(after_token)};
+            Op_PUT op_put = {collect_one_argument(after_token)};
             union Op op;
             op.op_put = op_put;
             GenericOp gen_op = {OT_PUT, op};
             return gen_op;
         }
         case OUT:{
-            Op_OUT op_out = {collect_one_sequence_arg(after_token)};
+            Op_OUT op_out = {collect_one_argument(after_token)};
             union Op op;
             op.op_out = op_out;
             GenericOp gen_op = {OT_OUT, op};
             return gen_op;
         }
         case OUTCHAR:{
-            Op_OUTCHAR op_outchar = {collect_one_sequence_arg(after_token)};
+            Op_OUTCHAR op_outchar = {collect_one_argument(after_token)};
             union Op op;
             op.op_outchar = op_outchar;
             GenericOp gen_op = {OT_OUTCHAR, op};
             return gen_op;
         }
         case OUTNUM:{
-            Op_OUTNUM op_outnum = {collect_one_sequence_arg(after_token)};
+            Op_OUTNUM op_outnum = {collect_one_argument(after_token)};
             union Op op;
             op.op_outnum = op_outnum;
             GenericOp gen_op = {OT_OUTNUM, op};
@@ -414,13 +432,9 @@ Module parse_module(TokenVector vec){
 
 
 
-    // scope read mode vars
-    char * scope_name = NULL;
-    Scope current_scope;
-    GenericOp current_instruction;
-    // --
-
-
+    Scope * scopes;
+    int scope_count;
+    Op_EXEC entrypoint;
 
     // at this level only definitons of scopes and exec can occur
     Token current;
@@ -428,8 +442,6 @@ Module parse_module(TokenVector vec){
     for(i = slice.start; i <= slice.end; i++){
         current = vec.arr[i];
         if(current.type == IDENTIFIER){
-            scope_name = current.name;
-
             if(get_token(vec, i+1).type != DEFINE){
                 err_expected_token(new_token(DEFINE), i+1);
             }
@@ -440,18 +452,26 @@ Module parse_module(TokenVector vec){
             int scope_end = find_scope_end(slice);
             TokenSlice scope_slice = { vec.arr, i+2, scope_end};
             Scope scope = parse_scope(current.name, scope_slice);
-            // add to list of scopes
+            scope_count += 1;
+            scopes = checked_realloc(scopes, sizeof(Scope) * scope_count);
+            scopes[scope_count-1] = scope;
             continue;
         }
         else if(current.type == EXEC){
-            // add entry point
+            TokenSlice exec_slice_part = {slice.arr, i, slice.end};
+            int exec_end = find_statement_end(exec_slice_part);
+            TokenSlice exec_slice = {slice.arr, i, exec_end};
+            GenericOp op = parse_op(exec_slice);
+            entrypoint = op.op.op_exec;
         }
         else {
             err_at("on module level only entrypoint (EXEC) and scope definitions are allowed", i);
         }
     }
-    // TODO
-    return (Module) {};
+
+    ScopeVector scope_vec = {scopes, scope_count};
+    Module module = {scope_vec, entrypoint};
+    return module;
 }
 
 
