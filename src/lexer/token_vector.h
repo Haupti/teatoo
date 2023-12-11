@@ -8,5 +8,6 @@ typedef struct {
 } TokenVector;
 
 void print_tknvec(TokenVector vec);
+Token get_token(TokenVector vec, int index);
 
 #endif
