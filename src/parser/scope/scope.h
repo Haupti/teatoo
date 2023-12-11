@@ -4,9 +4,10 @@
 #include "../../lexer/token_vector.h"
 #include "../../lexer/token.h"
 #include "../instruction/instruction.h"
+#include "../byte/byte.h"
 
 typedef struct ByteVector {
-    char * arr;
+    Byte * arr;
     int len;
 } ByteVector;
 

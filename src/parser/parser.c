@@ -1,16 +1,14 @@
 #include "parser.h"
+#include "byte/byte.h"
 #include "instruction/instruction.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../utils/checked_alloc.h"
 #include "scope/scope.h"
-
-void parse_err_at(char * msg, int pos){
-    printf("ERROR WHILE PARSING: at token %d: ", pos);
-    printf("%s\n", msg);
-    exit(EXIT_FAILURE);
-}
+#include "slice/token_slice.h"
+#include "error/error.h"
+#include "byte/parse_byte.h"
 
 Token get_token(TokenVector vec, int index){
     if(index >= vec.len){
@@ -20,34 +18,6 @@ Token get_token(TokenVector vec, int index){
     Token token = vec.arr[index];
     return token;
 }
-
-void err_expected_token(Token token_expected, int index){
-    printf("ERROR WHILE PARSING: expected token %s at %d\n", TKN_STR(token_expected), index);
-    exit(EXIT_FAILURE);
-}
-
-void err_unexpected_token(Token token_unexpected, int index){
-    printf("ERROR WHILE PARSING: unexpected token %s at %d\n", TKN_STR(token_unexpected), index);
-    exit(EXIT_FAILURE);
-}
-
-void err_at(char * msg, int index){
-    printf("ERROR WHILE PARSING: at %d: ", index);
-    printf("%s\n",msg);
-    exit(EXIT_FAILURE);
-}
-
-typedef struct {
-    Token * arr;
-    int start;
-    int end;
-} TokenSlice;
-
-typedef struct {
-    GenericOp * arr;
-    int len;
-} OpVector;
-
 
 int find_byte_end(TokenSlice slice){
     int start = slice.start;
@@ -127,36 +97,6 @@ typedef struct {
 
 GenericOp parse_op(TokenSlice slice);
 
-Byte parse_byte(TokenSlice slice){
-    if(slice.arr[slice.start].type != BYTE_START){
-        err_expected_token(new_token(BYTE_START), slice.start);
-    }
-    if(slice.arr[slice.start+2].type == BYTE_END){
-        if(slice.arr[slice.start+1].type == BIT_OFF){
-            return 0;
-        }
-        else if(slice.arr[slice.start+1].type == BIT_ON){
-            return 127;
-        }
-        else {
-            err_unexpected_token(slice.arr[slice.start + 1], slice.start+1);
-        }
-    }
-    else if(slice.arr[slice.start+9].type == BYTE_END){
-        char c = 0;
-        for(int i = 0; i < 8; i++){
-            if(slice.arr[i].type == BIT_ON){
-                c = c | (1 << i);
-            }
-            else if(slice.arr[i].type != BIT_OFF){
-                err_unexpected_token(slice.arr[i], slice.start+1+i);
-            }
-        }
-        return c;
-    }
-    err_unexpected_token(slice.arr[slice.start + 9], slice.start + 9);
-    return '\0';
-}
 Argument new_sequence_argument(Sequence sequence){
     Argument arg = {'\0', 0, sequence, 1};
     return arg;

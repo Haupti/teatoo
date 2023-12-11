@@ -1,6 +1,7 @@
 #ifndef INSTRUCTION_HEADER
 #define INSTRUCTION_HEADER
 
+#include "../byte/byte.h"
 #include <stdlib.h>
 
 typedef enum {
@@ -24,7 +25,6 @@ typedef enum {
 
 struct GenericOp;
 
-typedef char Byte;
 
 typedef struct Sequence {
     struct GenericOp * ops;
