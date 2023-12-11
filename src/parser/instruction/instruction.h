@@ -3,6 +3,7 @@
 
 #include "../byte/byte.h"
 #include <stdlib.h>
+#include "../argument/argument.h"
 
 typedef enum {
     OT_IF,
@@ -25,18 +26,6 @@ typedef enum {
 
 struct GenericOp;
 
-
-typedef struct Sequence {
-    struct GenericOp * ops;
-    size_t op_count;
-} Sequence;
-
-typedef struct Argument {
-    Byte byte;
-    int is_byte;
-    Sequence sequence;
-    int is_sequence;
-} Argument;
 
 typedef struct Op_IF {
     struct Argument condition;

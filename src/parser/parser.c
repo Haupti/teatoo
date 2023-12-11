@@ -9,6 +9,7 @@
 #include "slice/token_slice.h"
 #include "error/error.h"
 #include "byte/parse_byte.h"
+#include "argument/argument.h"
 
 
 int find_byte_end(TokenSlice slice){
@@ -80,22 +81,7 @@ int find_matching_sequence_end(TokenSlice slice){
     return -1;
 }
 
-typedef struct {
-    Argument first;
-    Argument second;
-} ArgumentPair;
-
 GenericOp parse_op(TokenSlice slice);
-
-Argument new_sequence_argument(Sequence sequence){
-    Argument arg = {'\0', 0, sequence, 1};
-    return arg;
-}
-
-Argument new_byte_argument(Byte byte){
-    Argument arg = {byte, 1, (Sequence) {}, 0};
-    return arg;
-}
 
 int find_statement_end(TokenSlice slice);
 Sequence parse_sequence_arg(TokenSlice slice){
