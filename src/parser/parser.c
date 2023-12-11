@@ -10,30 +10,20 @@
 #include "error/error.h"
 #include "byte/parse_byte.h"
 
-Token get_token(TokenVector vec, int index){
-    if(index >= vec.len){
-        printf("ERROR WHILE PARSING: missing a token at %d\n", index);
-        exit(EXIT_FAILURE);
-    }
-    Token token = vec.arr[index];
-    return token;
-}
 
 int find_byte_end(TokenSlice slice){
     int start = slice.start;
     if(slice.arr[start].type != BYTE_START){
         err_at("not at byte start", start);
     }
-    int i;
-    for(i = start+1; i <= start+8; i++){
-        if(i > start+1 && slice.arr[i].type == BYTE_END){
+    Token current;
+    for(int i = slice.start; i <= slice.end; i++){
+        current = slice.arr[i];
+        if(current.type == BYTE_END){
             return i;
         }
-        if(slice.arr[i].type != BIT_OFF || slice.arr[i].type != BIT_ON){
-            err_unexpected_token(slice.arr[i], i);
-        }
     }
-    err_expected_token(new_token(BYTE_END),i);
+    err_at("expected an end of the byte starting here", slice.start);
     return -1;
 }
 
