@@ -106,20 +106,21 @@ int find_matching_sequence_end(TokenSlice slice){
 GenericOp parse_op(TokenSlice slice);
 
 int find_statement_end(TokenSlice slice);
-Sequence parse_sequence_arg(TokenSlice slice){
-    // TODO duplicate code with parse scope ?
+
+Statements parse_section_ended_by(TokenSlice slice, TokenType ending_token) {
     GenericOp * ops = NULL;
     int ops_count = 0;
 
-    if(slice.arr[slice.start].type != GRP_OPEN){
-        err_at("cannot parse sequence if not at sequence start", slice.start);
-    }
-
-    int line_start = slice.start;
+    int line_start = slice.start + 1; // next to scope start
     TokenSlice rest;
-    int found_slice_end = 0;
-    while(!found_slice_end){
+    while(1){
+        // stop loop if on end
+        if(slice.arr[line_start].type == ending_token){
+            break;
+        }
+
         rest = (TokenSlice) {slice.arr, line_start, slice.end};
+
         int statement_end = find_statement_end(rest);
         TokenSlice statement_slice = {slice.arr, line_start, statement_end};
         GenericOp op = parse_op(statement_slice);
@@ -130,13 +131,31 @@ Sequence parse_sequence_arg(TokenSlice slice){
 
         line_start = statement_end + 1;
 
-        // stop loop
-        if(slice.arr[line_start].type == GRP_CLOSE){
-            found_slice_end = 1;
-        }
     }
 
-    Sequence seq = {ops, ops_count};
+    Statements statements = {ops, ops_count};
+    return statements;
+}
+
+Scope parse_scope(char * name, TokenSlice slice){
+    if(slice.arr[slice.start].type != SCOPE_OPEN){
+        err_at("expected scope definition start, cannot parse scope from here", slice.start);
+    }
+
+    Statements statements = parse_section_ended_by(slice, SCOPE_CLOSE);
+
+    Scope scope = new_scope(name, statements);
+    return scope;
+}
+
+Sequence parse_sequence_arg(TokenSlice slice){
+    if(slice.arr[slice.start].type != GRP_OPEN){
+        err_at("cannot parse sequence if not at sequence start", slice.start);
+    }
+
+    Statements statements = parse_section_ended_by(slice, GRP_CLOSE);
+
+    Sequence seq = {statements.statements, statements.statements_len};
     return seq;
 }
 
@@ -316,39 +335,6 @@ GenericOp parse_op(TokenSlice slice){
 }
 
 
-Scope parse_scope(char * name, TokenSlice slice){
-    if(slice.arr[slice.start].type != SCOPE_OPEN){
-        err_at("expected scope definition start, cannot parse scope from here", slice.start);
-    }
-    GenericOp * ops = NULL;
-    int ops_count = 0;
-
-    int line_start = slice.start + 1; // next to scope start
-    TokenSlice rest;
-    while(1){
-        // stop loop if on end
-        if(slice.arr[line_start].type == SCOPE_CLOSE){
-            break;
-        }
-
-        rest = (TokenSlice) {slice.arr, line_start, slice.end};
-
-        int statement_end = find_statement_end(rest);
-        TokenSlice statement_slice = {slice.arr, line_start, statement_end};
-        GenericOp op = parse_op(statement_slice);
-
-        ops_count += 1;
-        ops = checked_realloc(ops, sizeof(GenericOp) * (ops_count));
-        ops[ops_count-1] = op;
-
-        line_start = statement_end + 1;
-
-    }
-
-    Statements statements = {ops, ops_count};
-    Scope scope = new_scope(name, statements);
-    return scope;
-}
 
 Module parse_module(TokenVector vec){
 
