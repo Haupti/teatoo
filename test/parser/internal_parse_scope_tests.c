@@ -27,7 +27,31 @@ MODULAR_DESCRIBE(internal_parse_scope_tests, {
         ASSERT_STR_EQUALS(scope.name, "steve");
         ASSERT_INT_EQUALS(scope.stack.len, 0);
         ASSERT_INT_EQUALS(scope.statements.statements_len, 1);
-        Op_TAKE take = scope.statements.statements[0].op.op_take;
-        // did not error
+        ASSERT_EQUALS(scope.statements.statements[0].type, OT_TAKE);
+    });
+    TEST("parses scope with two statements and if", {
+        Token tokens[] = ARRAY(new_token(SCOPE_OPEN), new_token(IF), new_token(BYTE_START), new_token(BIT_ON), new_token(BYTE_END), new_token(GRP_OPEN) ,new_token(TAKE), new_token(GRP_CLOSE), new_token(TERM_NL), new_token(RETURN), new_token(GRP_OPEN), new_token(TAKE), new_token(GRP_CLOSE),new_token(SCOPE_CLOSE));
+        TokenSlice slice = new_token_slice(tokens, LEN(tokens));
+
+        Scope scope = parse_scope("steve", slice);
+
+        ASSERT_STR_EQUALS(scope.name, "steve");
+        ASSERT_INT_EQUALS(scope.stack.len, 0);
+        ASSERT_INT_EQUALS(scope.statements.statements_len, 2);
+        ASSERT_EQUALS(scope.statements.statements[0].type, OT_IF);
+        ASSERT_EQUALS(scope.statements.statements[1].type, OT_RETURN);
+
+        // check if
+        Op_IF opif = scope.statements.statements[0].op.op_if;
+        ASSERT_INT_EQUALS(opif.condition.is_byte, 1);
+        ASSERT_INT_EQUALS(opif.operation.is_sequence, 1);
+        ASSERT_INT_EQUALS((int) opif.operation.sequence.op_count, 1);
+        ASSERT_EQUALS(opif.operation.sequence.ops[0].type, OT_TAKE);
+
+        // check return
+        Op_RETURN opreturn = scope.statements.statements[1].op.op_return;
+        ASSERT_INT_EQUALS(opreturn.first.is_sequence, 1);
+        ASSERT_INT_EQUALS((int) opif.operation.sequence.op_count, 1);
+        ASSERT_EQUALS(opif.operation.sequence.ops[0].type, OT_TAKE);
     });
 });
