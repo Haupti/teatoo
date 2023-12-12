@@ -111,10 +111,6 @@ Statements parse_section_ended_by(TokenSlice slice, TokenType ending_token) {
     GenericOp * ops = NULL;
     int ops_count = 0;
 
-    // stop loop if next token is the terminator of this current section (e.g. ')' or '}')
-    if(slice.arr[slice.start + 1].type == ending_token){
-        err_at("unexpected token, byte or seqeuence cannot be empty", slice.start);
-    }
 
     int line_start = slice.start + 1; // next to section start
     TokenSlice rest;
@@ -148,15 +144,25 @@ Scope parse_scope(char * name, TokenSlice slice){
         err_at("expected scope definition start, cannot parse scope from here", slice.start);
     }
 
+    if(slice.arr[slice.start + 1].type == SCOPE_CLOSE){
+        Scope scope = new_scope(name, new_statements(NULL, 0));
+        return scope;
+    }
+    else {
+
     Statements statements = parse_section_ended_by(slice, SCOPE_CLOSE);
 
     Scope scope = new_scope(name, statements);
     return scope;
+    }
 }
 
 Sequence parse_sequence_arg(TokenSlice slice){
     if(slice.arr[slice.start].type != GRP_OPEN){
         err_at("cannot parse sequence if not at sequence start", slice.start);
+    }
+    if(slice.arr[slice.start + 1].type == GRP_CLOSE){
+        err_at("unexpected token, byte or seqeuence cannot be empty", slice.start);
     }
 
     Statements statements = parse_section_ended_by(slice, GRP_CLOSE);
