@@ -111,26 +111,32 @@ Statements parse_section_ended_by(TokenSlice slice, TokenType ending_token) {
     GenericOp * ops = NULL;
     int ops_count = 0;
 
-    int line_start = slice.start + 1; // next to scope start
+    // stop loop if next token is the terminator of this current section (e.g. ')' or '}')
+    if(slice.arr[slice.start + 1].type == ending_token){
+        err_at("unexpected token, byte or seqeuence cannot be empty", slice.start);
+    }
+
+    int line_start = slice.start + 1; // next to section start
     TokenSlice rest;
     while(1){
-        // stop loop if on end
-        if(slice.arr[line_start].type == ending_token){
-            break;
-        }
 
         rest = (TokenSlice) {slice.arr, line_start, slice.end};
 
-        int statement_end = find_statement_end(rest);
-        TokenSlice statement_slice = {slice.arr, line_start, statement_end};
+        int statement_end = find_statement_end(rest); // returns pos of last token of statement, not the terminator
+        TokenSlice statement_slice = {slice.arr, line_start , statement_end};
+
         GenericOp op = parse_op(statement_slice);
 
         ops_count += 1;
         ops = checked_realloc(ops, sizeof(GenericOp) * (ops_count));
         ops[ops_count-1] = op;
 
-        line_start = statement_end + 1;
+        // stop loop if next token is the terminator of this current section (e.g. ')' or '}')
+        if(slice.arr[statement_end + 1].type == ending_token){
+            break;
+        }
 
+        line_start = statement_end + 2; // +1 to be at the terminator, another +1 to be at the next statement start
     }
 
     Statements statements = {ops, ops_count};
@@ -164,7 +170,7 @@ Argument collect_one_argument(TokenSlice slice){
         int sequence_end = find_matching_sequence_end(slice);
         TokenSlice sequence_slice = {slice.arr, slice.start, sequence_end};
         Sequence sequence = parse_sequence_arg(sequence_slice);
-        Argument arg = {'\0', 0, sequence, 1};
+        Argument arg = new_sequence_argument(sequence);
         return arg;
     }
     else if(slice.arr[slice.start].type == BYTE_START){
@@ -172,7 +178,7 @@ Argument collect_one_argument(TokenSlice slice){
         return new_byte_argument(byte);
     }
     else {
-        err_at("expected '(' or a byte definition", slice.start);
+        err_at("an argument cannot start with this token. I expected '(' or a byte definition", slice.start);
         return (Argument) {};
     }
 }
@@ -183,10 +189,12 @@ ArgumentPair collect_two_arguments(TokenSlice slice){
     int i = 0;
     while(i < 2){
         if(slice.arr[arg_start_pos].type == GRP_OPEN){
-            int sequence_end = find_matching_sequence_end(slice);
-            TokenSlice sequence_slice = {slice.arr, arg_start_pos, sequence_end};
+            TokenSlice sequence_slice = {slice.arr, arg_start_pos, slice.end};
+            int sequence_end = find_matching_sequence_end(sequence_slice);
+            sequence_slice = (TokenSlice) {slice.arr, arg_start_pos, sequence_end};
+
             Sequence sequence = parse_sequence_arg(sequence_slice);
-            Argument arg = {'\0', 0, sequence, 1};
+            Argument arg = new_sequence_argument(sequence);
             args[i] = arg;
             arg_start_pos = sequence_end + 1;
         }
@@ -207,10 +215,10 @@ ArgumentPair collect_two_arguments(TokenSlice slice){
 }
 
 GenericOp parse_op(TokenSlice slice){
-    TokenSlice after_token = {slice.arr, slice.start + 1, slice.end};
-    switch(after_token.arr[after_token.start].type){
+    TokenSlice arguments_slice = {slice.arr, slice.start+1, slice.end};
+    switch(slice.arr[slice.start].type){
         case EQ:{
-            ArgumentPair pair = collect_two_arguments(after_token);
+            ArgumentPair pair = collect_two_arguments(arguments_slice);
 
             Op_EQ op_eq = {pair.first, pair.second};
             union Op op;
@@ -219,7 +227,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case NEQ:{
-            ArgumentPair pair = collect_two_arguments(after_token);
+            ArgumentPair pair = collect_two_arguments(arguments_slice);
 
             Op_NEQ op_neq = {pair.first, pair.second};
             union Op op;
@@ -228,7 +236,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case AND:{
-            ArgumentPair pair = collect_two_arguments(after_token);
+            ArgumentPair pair = collect_two_arguments(arguments_slice);
 
             Op_AND op_and = {pair.first, pair.second};
             union Op op;
@@ -237,7 +245,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case OR:{
-            ArgumentPair pair = collect_two_arguments(after_token);
+            ArgumentPair pair = collect_two_arguments(arguments_slice);
 
             Op_OR op_or = {pair.first, pair.second};
             union Op op;
@@ -246,7 +254,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case XOR:{
-            ArgumentPair pair = collect_two_arguments(after_token);
+            ArgumentPair pair = collect_two_arguments(arguments_slice);
 
             Op_XOR op_xor = {pair.first, pair.second};
             union Op op;
@@ -255,7 +263,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case IF:{
-            ArgumentPair pair = collect_two_arguments(after_token);
+            ArgumentPair pair = collect_two_arguments(arguments_slice);
 
             Op_IF op_if = {pair.first, pair.second};
             union Op op;
@@ -264,49 +272,49 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         case NOT:{
-            Op_NOT op_not = {collect_one_argument(after_token)};
+            Op_NOT op_not = {collect_one_argument(arguments_slice)};
             union Op op;
             op.op_not = op_not;
             GenericOp gen_op = {OT_NOT, op};
             return gen_op;
         }
         case RETURN:{
-            Op_RETURN op_return = {collect_one_argument(after_token)};
+            Op_RETURN op_return = {collect_one_argument(arguments_slice)};
             union Op op;
             op.op_return = op_return;
             GenericOp gen_op = {OT_RETURN, op};
             return gen_op;
         }
         case EXEC:{
-            Op_EXEC op_exec = {collect_one_argument(after_token)};
+            Op_EXEC op_exec = {collect_one_argument(arguments_slice)};
             union Op op;
             op.op_exec = op_exec;
             GenericOp gen_op = {OT_EXEC, op};
             return gen_op;
         }
         case PUT:{
-            Op_PUT op_put = {collect_one_argument(after_token)};
+            Op_PUT op_put = {collect_one_argument(arguments_slice)};
             union Op op;
             op.op_put = op_put;
             GenericOp gen_op = {OT_PUT, op};
             return gen_op;
         }
         case OUT:{
-            Op_OUT op_out = {collect_one_argument(after_token)};
+            Op_OUT op_out = {collect_one_argument(arguments_slice)};
             union Op op;
             op.op_out = op_out;
             GenericOp gen_op = {OT_OUT, op};
             return gen_op;
         }
         case OUTCHAR:{
-            Op_OUTCHAR op_outchar = {collect_one_argument(after_token)};
+            Op_OUTCHAR op_outchar = {collect_one_argument(arguments_slice)};
             union Op op;
             op.op_outchar = op_outchar;
             GenericOp gen_op = {OT_OUTCHAR, op};
             return gen_op;
         }
         case OUTNUM:{
-            Op_OUTNUM op_outnum = {collect_one_argument(after_token)};
+            Op_OUTNUM op_outnum = {collect_one_argument(arguments_slice)};
             union Op op;
             op.op_outnum = op_outnum;
             GenericOp gen_op = {OT_OUTNUM, op};
@@ -327,7 +335,7 @@ GenericOp parse_op(TokenSlice slice){
             return gen_op;
         }
         default:{
-            err_unexpected_token(after_token.arr[after_token.start], after_token.start);
+            err_unexpected_token(arguments_slice.arr[arguments_slice.start], arguments_slice.start);
             GenericOp op = {};
             return op;
         }
@@ -368,6 +376,7 @@ Module parse_module(TokenVector vec){
             continue;
         }
         else if(current.type == EXEC){
+            // TODO fix
             TokenSlice exec_slice_part = {slice.arr, i, slice.end};
             int exec_end = find_statement_end(exec_slice_part);
             TokenSlice exec_slice = {slice.arr, i, exec_end};

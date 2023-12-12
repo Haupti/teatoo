@@ -8,15 +8,6 @@
 #include "internal_functions_header.h"
 
 MODULAR_DESCRIBE(internal_parse_sequence_arg_tests, {
-    TEST("parses the args of a empty sequence", {
-        Token tokens[] = ARRAY(new_token(GRP_OPEN), new_token(GRP_CLOSE));
-        TokenSlice slice = new_token_slice(tokens, LEN(tokens));
-
-        Sequence sequence = parse_sequence_arg(slice);
-
-        ASSERT_INT_EQUALS((int) sequence.op_count, 0);
-        ASSERT_EQUALS(sequence.ops, NULL);
-    });
     TEST("parses the args of a sequence with one statement", {
         Token tokens[] = ARRAY(new_token(GRP_OPEN), new_token(PUT), new_token(BYTE_START), new_token(BIT_OFF), new_token(BYTE_END), new_token(GRP_CLOSE), new_token(TERM_NL));
         TokenSlice slice = new_token_slice(tokens, LEN(tokens));
