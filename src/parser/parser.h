@@ -7,9 +7,10 @@
 typedef struct Module {
     ScopeVector scopes;
     Op_EXEC entrypoint;
+    int has_entrypoint;
 } Module;
 
 
-Module parse_module(TokenVector vec);
+Module create_parse_module(TokenVector vec);
 
 #endif

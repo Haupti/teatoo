@@ -350,15 +350,20 @@ GenericOp parse_op(TokenSlice slice){
 
 
 
-Module parse_module(TokenVector vec){
+Module create_parse_module(TokenVector vec){
+
+    if(vec.len == 0){
+        ScopeVector scope_vec = {NULL, 0};
+        Module module = {scope_vec, (Op_EXEC) {}, 0};
+        return module;
+    }
 
     TokenSlice slice = {vec.arr, 0, vec.len -1};
 
-
-
-    Scope * scopes;
-    int scope_count;
+    Scope * scopes = NULL;
+    int scope_count = 0;
     Op_EXEC entrypoint;
+    int has_entrypoint = 0;
 
     // at this level only definitons of scopes and exec can occur
     Token current;
@@ -379,7 +384,7 @@ Module parse_module(TokenVector vec){
             scope_count += 1;
             scopes = checked_realloc(scopes, sizeof(Scope) * scope_count);
             scopes[scope_count-1] = scope;
-            continue;
+            i = scope_end;
         }
         else if(current.type == EXEC){
             // TODO fix
@@ -388,6 +393,11 @@ Module parse_module(TokenVector vec){
             TokenSlice exec_slice = {slice.arr, i, exec_end};
             GenericOp op = parse_op(exec_slice);
             entrypoint = op.op.op_exec;
+            has_entrypoint = 1;
+            i = exec_end;
+        }
+        else if(current.type == TERM_NL || current.type == TERM_SEM){
+            continue;
         }
         else {
             err_at("on module level only entrypoint (EXEC) and scope definitions are allowed", i);
@@ -395,7 +405,7 @@ Module parse_module(TokenVector vec){
     }
 
     ScopeVector scope_vec = {scopes, scope_count};
-    Module module = {scope_vec, entrypoint};
+    Module module = {scope_vec, entrypoint, has_entrypoint};
     return module;
 }
 

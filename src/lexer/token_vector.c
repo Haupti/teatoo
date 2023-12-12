@@ -17,3 +17,8 @@ Token get_token(TokenVector vec, int index){
     Token token = vec.arr[index];
     return token;
 }
+
+TokenVector new_token_vector(Token * arr, size_t len){
+    TokenVector vec = {arr, len};
+    return vec;
+}

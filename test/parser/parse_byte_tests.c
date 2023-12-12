@@ -4,8 +4,6 @@
 #include "../../src/parser/byte/parse_byte.h"
 #include "../../src/parser/byte/byte.h"
 
-#include "internal_functions_header.h"
-
 MODULAR_DESCRIBE(parse_byte_tests, {
     TEST("parse byte parses byte [1] as 127", {
         Token tokens[] = ARRAY(new_token(BYTE_START), new_token(BIT_ON), new_token(BYTE_END));
