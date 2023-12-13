@@ -183,6 +183,15 @@ Argument collect_one_argument(TokenSlice slice){
         Byte byte = parse_byte(slice);
         return new_byte_argument(byte);
     }
+    else if(slice.arr[slice.start].type == COPY){
+        if(slice.end <= slice.start){
+            err_at("expected an scope identifier here", slice.start);
+        }
+        return new_scope_copy_ref_argument(slice.arr[slice.start+1].name);
+    }
+    else if(slice.arr[slice.start].type == IDENTIFIER){
+        return new_scope_ref_argument(slice.arr[slice.start].name);
+    }
     else {
         err_at("an argument cannot start with this token. I expected '(' or a byte definition", slice.start);
         return (Argument) {};
@@ -210,6 +219,15 @@ ArgumentPair collect_two_arguments(TokenSlice slice){
             TokenSlice byte_slice = {slice.arr, arg_start_pos, byte_end};
             args[i] = new_byte_argument(byte);
             arg_start_pos = byte_end + 1;
+        }
+        else if(slice.arr[slice.start].type == COPY){
+            if(slice.end <= slice.start){
+                err_at("expected an scope identifier here", slice.start);
+            }
+            args[i] = new_scope_copy_ref_argument(slice.arr[slice.start+1].name);
+        }
+        else if(slice.arr[slice.start].type == IDENTIFIER){
+            args[i] = new_scope_ref_argument(slice.arr[slice.start].name);
         }
         else {
             err_at("expected '(' or a byte definition", slice.start);

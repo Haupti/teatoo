@@ -7,9 +7,12 @@ void error_on_byte_expect_sequence(Argument arg){
         printf("ERROR: expected a sequence, but received a byte");
         exit(EXIT_FAILURE);
     }
+    // EXEC expects a scope, and only a scope
+    // that means a argument must then be a scope ref or a scope copy ref i.e. e.g. "a: {}; EXEC a" or "a:{}; EXEC $a"
 }
 
-int iterpret_exec(Op_EXEC exec){
+
+int interpret_exec(Op_EXEC exec){
     error_on_byte_expect_sequence(exec.first);
     return EXIT_FAILURE;
 }
