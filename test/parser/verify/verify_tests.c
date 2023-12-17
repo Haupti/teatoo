@@ -1,7 +1,5 @@
 #include "../../../lib/test/assert.h"
 #include <stdio.h>
-#include "../../../src/parser/parser.h"
-#include "../../../src/parser/byte/byte.h"
 #include "../../../src/parser/slice/token_slice.h"
 #include "internal_verify_header.h"
 

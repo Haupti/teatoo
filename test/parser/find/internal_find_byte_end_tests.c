@@ -1,9 +1,8 @@
-#include "../../lib/test/assert.h"
+#include "../../../lib/test/assert.h"
 #include <stdio.h>
-#include "../../src/parser/parser.h"
-#include "../../src/parser/byte/byte.h"
-#include "../../src/parser/slice/token_slice.h"
-#include "internal_functions_header.h"
+#include "../../../src/parser/find/find.h"
+#include "../../../src/parser/byte/byte.h"
+#include "../../../src/parser/slice/token_slice.h"
 
 MODULAR_DESCRIBE(internal_find_byte_end_tests, {
     TEST("finds byte end for shorthand def [0]", {
