@@ -16,6 +16,8 @@
 #include "parser/verify/verify_tests.h"
 
 int main(){
+
+    printf("%c\n", '=' & 'a');
     RUN_DESCRIBE_MODULE(lexer_tests);
 
     RUN_DESCRIBE_MODULE(internal_find_byte_end_tests);
