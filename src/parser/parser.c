@@ -10,102 +10,12 @@
 #include "error/error.h"
 #include "byte/parse_byte.h"
 #include "argument/argument.h"
+#include "find/find.h"
+#include "verify/verifyer.h"
 
 
-int find_byte_end(TokenSlice slice){
-    int start = slice.start;
-    if(slice.arr[start].type != BYTE_START){
-        err_at("not at byte start", start);
-    }
-    Token current;
-    for(int i = slice.start; i <= slice.end; i++){
-        current = slice.arr[i];
-        if(current.type == BYTE_END){
-            return i;
-        }
-    }
-    err_at("expected an end of the byte starting here", slice.start);
-    return -1;
-}
-
-int find_scope_end(TokenSlice slice){
-    TokenType start_type = slice.arr[slice.start].type;
-    if(start_type == SCOPE_OPEN){
-        int bracket_counter = 0;
-        int i;
-        for(i = slice.start; i <= slice.end; i++){
-            switch(slice.arr[i].type){
-                case SCOPE_CLOSE:
-                    bracket_counter -= 1;
-                    break;
-                case SCOPE_OPEN:
-                    bracket_counter += 1;
-                    break;
-                default: break;
-            }
-            if(bracket_counter == 0){
-                return i;
-            }
-        }
-        err_at("could not find matching sequence closing starting here", slice.start);
-        return -1;
-    }
-    err_at("not at scope start, cannot search for end", slice.start);
-    return -1;
-}
-
-int find_statement_end(TokenSlice slice){
-    int sequence_counter = 0;
-    Token current;
-    for(int i = slice.start; i <= slice.end; i++){
-        current = slice.arr[i];
-        // statement can be ended by ')' but not if there was a '(' before within the same statement
-        // e.g. (IF [0] (TAKE))
-        // searching will start at IF but the ')' matching the '(' before the IF will also terminate the statement
-        if(sequence_counter == 0 && (current.type == TERM_NL || current.type == TERM_SEM || current.type == SCOPE_CLOSE || current.type == GRP_CLOSE)){
-            return i-1;
-        }
-        else if(current.type == GRP_OPEN){
-            sequence_counter += 1;
-        }
-        else if(current.type == GRP_CLOSE){
-            sequence_counter -= 1;
-        }
-    }
-    parse_err_at("statement did not end before end of current slice", slice.start);
-    return -1;
-}
-
-
-int find_matching_sequence_end(TokenSlice slice){
-    TokenType start_type = slice.arr[slice.start].type;
-    if(start_type == GRP_OPEN){
-        int grp_counter = 0;
-        int i;
-        for(i = slice.start; i <= slice.end; i++){
-            switch(slice.arr[i].type){
-                case GRP_CLOSE:
-                    grp_counter -= 1;
-                    break;
-                case GRP_OPEN:
-                    grp_counter += 1;
-                    break;
-                default: break;
-            }
-            if(grp_counter == 0){
-                return i;
-            }
-        }
-        err_at("could not find matching sequence closing starting here", slice.start);
-        return -1;
-    }
-    err_at("not at sequence start, cannot search for end", slice.start);
-    return -1;
-}
 
 GenericOp parse_op(TokenSlice slice);
-
-int find_statement_end(TokenSlice slice);
 
 Statements parse_section_ended_by(TokenSlice slice, TokenType ending_token) {
     GenericOp * ops = NULL;
@@ -172,6 +82,7 @@ Sequence parse_sequence_arg(TokenSlice slice){
 }
 
 Argument collect_one_argument(TokenSlice slice){
+    verify_has_only_one_argument(slice);
     if(slice.arr[slice.start].type == GRP_OPEN){
         int sequence_end = find_matching_sequence_end(slice);
         TokenSlice sequence_slice = {slice.arr, slice.start, sequence_end};
@@ -192,6 +103,9 @@ Argument collect_one_argument(TokenSlice slice){
     else if(slice.arr[slice.start].type == IDENTIFIER){
         return new_scope_ref_argument(slice.arr[slice.start].name);
     }
+    else if(slice.arr[slice.start].type == COPY){
+        return new_scope_copy_ref_argument(slice.arr[slice.start+1].name);
+    }
     else {
         err_at("an argument cannot start with this token. I expected '(' or a byte definition", slice.start);
         return (Argument) {};
@@ -199,41 +113,16 @@ Argument collect_one_argument(TokenSlice slice){
 }
 
 ArgumentPair collect_two_arguments(TokenSlice slice){
+    verify_has_only_two_arguments(slice);
     int arg_start_pos = slice.start;
     Argument args[2];
-    int i = 0;
-    while(i < 2){
-        if(slice.arr[arg_start_pos].type == GRP_OPEN){
-            TokenSlice sequence_slice = {slice.arr, arg_start_pos, slice.end};
-            int sequence_end = find_matching_sequence_end(sequence_slice);
-            sequence_slice = (TokenSlice) {slice.arr, arg_start_pos, sequence_end};
 
-            Sequence sequence = parse_sequence_arg(sequence_slice);
-            Argument arg = new_sequence_argument(sequence);
-            args[i] = arg;
-            arg_start_pos = sequence_end + 1;
-        }
-        else if(slice.arr[arg_start_pos].type == BYTE_START){
-            Byte byte = parse_byte(slice);
-            int byte_end = find_byte_end(slice);
-            TokenSlice byte_slice = {slice.arr, arg_start_pos, byte_end};
-            args[i] = new_byte_argument(byte);
-            arg_start_pos = byte_end + 1;
-        }
-        else if(slice.arr[slice.start].type == COPY){
-            if(slice.end <= slice.start){
-                err_at("expected an scope identifier here", slice.start);
-            }
-            args[i] = new_scope_copy_ref_argument(slice.arr[slice.start+1].name);
-        }
-        else if(slice.arr[slice.start].type == IDENTIFIER){
-            args[i] = new_scope_ref_argument(slice.arr[slice.start].name);
-        }
-        else {
-            err_at("expected '(' or a byte definition", slice.start);
-        }
-        i += 1;
-    }
+    int arg1_end = find_argument_end(slice);
+    TokenSlice first_arg_slice = {slice.arr, slice.start, arg1_end};
+    TokenSlice second_arg_slice = {slice.arr, arg1_end + 1, slice.end};
+
+    args[0] = collect_one_argument(first_arg_slice);
+    args[1] = collect_one_argument(second_arg_slice);
     ArgumentPair pair = {args[0], args[1]};
     return pair;
 }

@@ -4,7 +4,7 @@ SRC=src
 LIB=lib
 
 SOURCES=$(wildcard $(SRC)/**/**/*.c) $(wildcard $(SRC)/**/*.c) $(wildcard $(SRC)/*.c)
-TEST_SOURCES=$(wildcard $(TEST)/**/*.c) $(wildcard $(TEST)/*.c)
+TEST_SOURCES=$(wildcard $(TEST)/**/**/*.c) $(wildcard $(TEST)/**/*.c) $(wildcard $(TEST)/*.c)
 LIB_SRC=$(wildcard $(LIB)/src/**/*.c) $(wildcard $(LIB)/src/*.c)
 LIB_TEST=$(wildcard $(LIB)/test/**/*.c) $(wildcard $(LIB)/test/*.c)
 
