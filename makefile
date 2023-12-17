@@ -23,4 +23,3 @@ exec:
 	./$(BUILD)/tt test.tt
 
 run: build_prod exec
-
