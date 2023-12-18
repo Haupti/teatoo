@@ -23,7 +23,7 @@ MODULAR_DESCRIBE(internal_parse_op_tests, {
 
         ASSERT_EQUALS(op.type, OT_PUT);
         ASSERT_INT_EQUALS(op.op.op_put.first.is_byte, 1);
-        ASSERT_INT_EQUALS(op.op.op_put.first.byte, 127);
+        ASSERT_INT_EQUALS(op.op.op_put.first.byte, 0xFF);
     });
     TEST("parses IF", {
         Token tokens[] = ARRAY(new_token(IF), new_token(BYTE_START), new_token(BIT_ON), new_token(BYTE_END), new_token(GRP_OPEN), new_token(TAKE), new_token(GRP_CLOSE), new_token(TERM_NL));
@@ -33,7 +33,7 @@ MODULAR_DESCRIBE(internal_parse_op_tests, {
 
         ASSERT_EQUALS(op.type, OT_IF);
         ASSERT_INT_EQUALS(op.op.op_if.condition.is_byte, 1);
-        ASSERT_INT_EQUALS(op.op.op_if.condition.byte, 127);
+        ASSERT_INT_EQUALS(op.op.op_if.condition.byte, 0xFF);
         ASSERT_INT_EQUALS(op.op.op_if.operation.is_sequence, 1);
         ASSERT_INT_EQUALS((int) op.op.op_if.operation.sequence.op_count, 1);
         ASSERT_EQUALS(op.op.op_if.operation.sequence.ops[0].type, OT_TAKE);

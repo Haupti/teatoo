@@ -14,10 +14,8 @@
 #include "parser/internal_parse_op_tests.h"
 #include "parser/internal_collect_one_argument_tests.h"
 #include "parser/verify/verify_tests.h"
-
 int main(){
 
-    printf("%c\n", '=' & 'a');
     RUN_DESCRIBE_MODULE(lexer_tests);
 
     RUN_DESCRIBE_MODULE(internal_find_byte_end_tests);
