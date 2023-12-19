@@ -62,7 +62,13 @@ Result exec_op(ActiveScope * context, GenericOp op){
             if(context->stack.len == 0){
                 return result;
             }
-            else if(context->stack.len >= 1){
+            else if(context->stack.len == 1){
+                context->stack.len = context->stack.len - 1;
+                free(context->stack.arr);
+                context->stack.arr = NULL;
+                return result;
+            }
+            else if(context->stack.len > 1){
                 context->stack.len = context->stack.len - 1;
                 context->stack.arr = checked_realloc(context->stack.arr, sizeof(Byte) * context->stack.len);
                 return result;
@@ -187,11 +193,12 @@ Result exec_op(ActiveScope * context, GenericOp op){
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('RETURN')", context->name);
             }
-            return first;
+            context->return_result = first;
+            context->is_returned = 1;
             break;
         }
         case OT_EXEC:{
-            interpreter_err_in("EXEX is not allowed inside a scope", context->name);
+            interpreter_err_in("EXEC is not allowed inside a scope", context->name);
         };
     }
     return null_result();

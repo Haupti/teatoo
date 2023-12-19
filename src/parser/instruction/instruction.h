@@ -121,5 +121,12 @@ Statements new_statements(GenericOp * statements, size_t len);
 GenericOp new_peek();
 GenericOp new_put(Byte byte);
 GenericOp new_take();
+GenericOp new_and(Byte b1, Byte b2);
+GenericOp new_or(Byte b1, Byte b2);
+GenericOp new_xor(Byte b1, Byte b2);
+GenericOp new_not(Byte b1);
+GenericOp new_eq(Byte b1, Byte b2);
+GenericOp new_neq(Byte b1, Byte b2);
+GenericOp new_return(Argument arg);
 
 #endif

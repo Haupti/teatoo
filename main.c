@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "lib/src/read_file.h"
 #include "src/tt.h"
-#include "src/utils/free.h"
 
 int main(int args, char * argv[]){
     if(args != 2){
@@ -15,6 +14,7 @@ int main(int args, char * argv[]){
         exit(EXIT_FAILURE);
     }
     int result = tt(content.buffer);
-    free_s(content.buffer);
+    free(content.buffer);
+    content.buffer = NULL;
     return result;
 }

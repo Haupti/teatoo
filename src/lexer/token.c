@@ -1,7 +1,7 @@
 #include "token.h"
-#include "../utils/free.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 Token new_token(TokenType type){
     Token token = {type, NULL};
@@ -16,5 +16,6 @@ Token new_identifier_token(char * to_copy){
 }
 
 void destroy_token(Token token){
-    free_s(token.name);
+    free(token.name);
+    token.name = NULL;
 }
