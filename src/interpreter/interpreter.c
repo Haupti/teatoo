@@ -211,12 +211,11 @@ Result exec_arg(ActiveScope * context, Argument arg){
     }
     else if(arg.is_sequence){
         for(int i = 0; i<arg.sequence.op_count; i++){
-            if(i == arg.sequence.op_count -1){
+            if(i == arg.sequence.op_count - 1){
                 return exec_op(context, arg.sequence.ops[i]);
             }
             else {
                 exec_op(context, arg.sequence.ops[i]);
-                return null_result();
             }
         }
     }

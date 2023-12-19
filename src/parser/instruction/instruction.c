@@ -85,3 +85,11 @@ GenericOp new_return(Argument arg){
     GenericOp gen_op = {OT_RETURN, op};
     return gen_op;
 }
+
+GenericOp new_if(Argument condition, Argument operation){
+    Op_IF iff = {condition, operation};
+    union Op op;
+    op.op_if = iff;
+    GenericOp gen_op = {OT_IF, op};
+    return gen_op;
+}

@@ -15,6 +15,7 @@
 #include "parser/internal_collect_one_argument_tests.h"
 #include "parser/verify/verify_tests.h"
 #include "interpreter/exec_op_tests.h"
+#include "interpreter/exec_arg_tests.h"
 int main(){
 
     RUN_DESCRIBE_MODULE(lexer_tests);
@@ -34,6 +35,7 @@ int main(){
     RUN_DESCRIBE_MODULE(verify_tests);
 
     RUN_DESCRIBE_MODULE(exec_op_tests);
+    RUN_DESCRIBE_MODULE(exec_arg_tests);
 
     return EXIT_SUCCESS;
 }

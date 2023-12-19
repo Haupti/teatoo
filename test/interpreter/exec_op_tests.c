@@ -212,5 +212,41 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ASSERT_INT_EQUALS(active_scope.return_result.is_byte, 1);
         ASSERT_INT_EQUALS(active_scope.return_result.byte, 123);
     })
+    TEST("executes an if, puts on stack bacause condition is [1]", {
+        Byte stack_vals[] = ARRAY('c', '\0', 255, 'x', 't');
+        Byte * mem = malloc(sizeof(Byte) * (LEN(stack_vals)));
+        memcpy(mem, stack_vals, sizeof(Byte) *(LEN(stack_vals)));
+        ByteVector stack = ARRAY(mem, LEN(stack_vals));
+        ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
+
+        GenericOp if_generic_ops[] = ARRAY(new_put(5));
+        Sequence if_ops = ARRAY(if_generic_ops, LEN(if_generic_ops));
+
+        Result result = exec_op(&active_scope, new_if(new_byte_argument(255), new_sequence_argument(if_ops)));
+
+        ASSERT_INT_EQUALS(result.is_byte, 0);
+        ASSERT_INT_EQUALS(result.is_null, 1);
+        ASSERT_INT_EQUALS(active_scope.stack.len, 6);
+        ASSERT_INT_EQUALS(active_scope.stack.arr[5], 5)
+    })
+
+    TEST("executes an if, does nothing because [0]", {
+        Byte stack_vals[] = ARRAY('c', '\0', 255, 'x', 't');
+        Byte * mem = malloc(sizeof(Byte) * (LEN(stack_vals)));
+        memcpy(mem, stack_vals, sizeof(Byte) *(LEN(stack_vals)));
+        ByteVector stack = ARRAY(mem, LEN(stack_vals));
+        ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
+
+
+        GenericOp if_generic_ops[] = ARRAY(new_put(5));
+        Sequence if_ops = ARRAY(if_generic_ops, LEN(if_generic_ops));
+
+        Result result = exec_op(&active_scope, new_if(new_byte_argument(0), new_sequence_argument(if_ops)));
+
+        ASSERT_INT_EQUALS(result.is_byte, 0);
+        ASSERT_INT_EQUALS(result.is_null, 1);
+        ASSERT_INT_EQUALS(active_scope.stack.len, 5);
+        ASSERT_INT_EQUALS(active_scope.stack.arr[4], 't');
+    })
 });
 
