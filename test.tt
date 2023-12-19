@@ -1,5 +1,8 @@
-a:{ PUT [01000001]
+a:{
+    PUT [01000001]
     OUTCHAR (PEEK)
-    RETURN (TAKE) }
+    IF (TAKE) (RETURN (EXEC $a))
+    RETURN [0]
+}
 
-EXEC a;
+EXEC $a;

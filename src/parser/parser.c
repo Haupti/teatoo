@@ -13,8 +13,6 @@
 #include "find/find.h"
 #include "verify/verifyer.h"
 
-
-
 GenericOp parse_op(TokenSlice slice);
 
 Statements parse_section_ended_by(TokenSlice slice, TokenType ending_token) {
@@ -27,6 +25,14 @@ Statements parse_section_ended_by(TokenSlice slice, TokenType ending_token) {
     while(1){
 
         rest = (TokenSlice) {slice.arr, line_start, slice.end};
+        // if 'start' is a newline (or a line only containing that) we skip it
+        if(rest.arr[rest.start].type == TERM_NL || rest.arr[rest.start].type == TERM_SEM){
+            line_start += 1;
+            continue;
+        }
+        if(rest.arr[rest.start].type == ending_token){
+            break;
+        }
 
         int statement_end = find_statement_end(rest); // returns pos of last token of statement, not the terminator
         TokenSlice statement_slice = {slice.arr, line_start , statement_end};
@@ -255,8 +261,6 @@ GenericOp parse_op(TokenSlice slice){
     }
 }
 
-
-
 Module create_parse_module(TokenVector vec){
 
     if(vec.len == 0){
@@ -294,7 +298,6 @@ Module create_parse_module(TokenVector vec){
             i = scope_end;
         }
         else if(current.type == EXEC){
-            // TODO fix
             TokenSlice exec_slice_part = {slice.arr, i, slice.end};
             int exec_end = find_statement_end(exec_slice_part);
             TokenSlice exec_slice = {slice.arr, i, exec_end};
@@ -315,23 +318,3 @@ Module create_parse_module(TokenVector vec){
     Module module = {scope_vec, entrypoint, has_entrypoint};
     return module;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
