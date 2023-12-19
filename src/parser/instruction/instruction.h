@@ -118,5 +118,8 @@ typedef struct Statements {
 } Statements;
 
 Statements new_statements(GenericOp * statements, size_t len);
+GenericOp new_peek();
+GenericOp new_put(Byte byte);
+GenericOp new_take();
 
 #endif

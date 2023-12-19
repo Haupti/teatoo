@@ -46,7 +46,7 @@ Result get_top_of_stack(ByteVector bytes){
         return null_result();
     }
     else {
-        return byte_result(bytes.arr[bytes.len -1]);
+        return byte_result(bytes.arr[bytes.len - 1]);
     }
 }
 
@@ -76,6 +76,7 @@ Result exec_op(ActiveScope * context, GenericOp op){
             else {
                 context->stack.len = context->stack.len + 1;
                 context->stack.arr = checked_realloc(context->stack.arr, sizeof(Byte) * (context->stack.len));
+                context->stack.arr[context->stack.len -1] = result.byte;
             }
             break;
         }
@@ -216,13 +217,10 @@ Result exec_arg(ActiveScope * context, Argument arg){
 }
 
 Result execute_scope(Module context, Scope scope, int is_copy){
-    ByteVector stack = scope.stack;
-    int stack_top = stack.len - 1;
-    Statements statements = scope.statements;
     ActiveScope active_scope = {scope.name, scope.stack, scope.statements, null_result(), 0};
 
-    for(int i=0; i<scope.statements.statements_len; i++){
-        GenericOp op = statements.statements[i];
+    for(int i=0; i<active_scope.statements.statements_len; i++){
+        GenericOp op = active_scope.statements.statements[i];
         if(active_scope.is_returned){
             return active_scope.return_result;
         }
