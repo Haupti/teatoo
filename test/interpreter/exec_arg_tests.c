@@ -6,6 +6,7 @@
 
 MODULAR_DESCRIBE(exec_arg_tests, {
     Statements statements = ARRAY(NULL, 0);
+    Module module = {};
 
     TEST("executes an argument byte, returns the byte result", {
         Byte stack_vals[] = ARRAY('c', '\0', 255, 'x', 't');
@@ -14,7 +15,7 @@ MODULAR_DESCRIBE(exec_arg_tests, {
         ByteVector stack = ARRAY(mem, LEN(stack_vals));
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
-        Result result = exec_arg(&active_scope, new_byte_argument('G'));
+        Result result = exec_arg(&module, &active_scope, new_byte_argument('G'));
 
         ASSERT_INT_EQUALS(result.is_byte, 1);
         ASSERT_INT_EQUALS(result.is_null, 0);
@@ -32,7 +33,7 @@ MODULAR_DESCRIBE(exec_arg_tests, {
         GenericOp ops[] = ARRAY(new_peek(), new_take());
         Sequence seq = ARRAY(ops, LEN(ops));
 
-        Result result = exec_arg(&active_scope, new_sequence_argument(seq));
+        Result result = exec_arg(&module, &active_scope, new_sequence_argument(seq));
 
         ASSERT_INT_EQUALS(result.is_byte, 1);
         ASSERT_INT_EQUALS(result.is_null, 0);

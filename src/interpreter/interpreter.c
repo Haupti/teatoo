@@ -38,8 +38,9 @@ void check_expect_scope(Argument arg){
     }
 }
 
-
-Result exec_arg(ActiveScope * context, Argument arg);
+Result exec_arg(Module * module, ActiveScope * context, Argument arg);
+Result execute_scope(Module * context, char * scope_name, int is_copy);
+int find_index_of_scope_by_name(Module * module, char * name);
 
 Result get_top_of_stack(ByteVector bytes){
     if(bytes.len == 0){
@@ -50,7 +51,7 @@ Result get_top_of_stack(ByteVector bytes){
     }
 }
 
-Result exec_op(ActiveScope * context, GenericOp op){
+Result exec_op(Module * module, ActiveScope * context, GenericOp op){
     switch(op.type){
         case OT_PEEK:{
             return get_top_of_stack(context->stack);
@@ -75,22 +76,20 @@ Result exec_op(ActiveScope * context, GenericOp op){
             }
         }
         case OT_PUT:{
-            Result result = exec_arg(context, op.op.op_put.first);
+            Result result = exec_arg(module, context, op.op.op_put.first);
             if(result.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('PUT')", context->name);
             }
             else {
-                printf("before stack len %d\n", context->stack.len);
                 context->stack.len = context->stack.len + 1;
-                printf("stack len %d\n", context->stack.len);
                 context->stack.arr = checked_realloc(context->stack.arr, sizeof(Byte) * (context->stack.len));
                 context->stack.arr[context->stack.len -1] = result.byte;
             }
             break;
         }
         case OT_AND:{
-            Result first = exec_arg(context, op.op.op_and.first);
-            Result second = exec_arg(context, op.op.op_and.second);
+            Result first = exec_arg(module, context, op.op.op_and.first);
+            Result second = exec_arg(module, context, op.op.op_and.second);
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('AND')", context->name);
             }
@@ -98,12 +97,12 @@ Result exec_op(ActiveScope * context, GenericOp op){
             return result;
         }
         case OT_IF:{
-            Result condition_result = exec_arg(context, op.op.op_if.condition);
+            Result condition_result = exec_arg(module, context, op.op.op_if.condition);
             if(condition_result.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('IF')", context->name);
             }
             if(condition_result.byte == 0xFF){
-                return exec_arg(context, op.op.op_if.operation);
+                return exec_arg(module, context, op.op.op_if.operation);
             }
             else {
                 return null_result();
@@ -111,8 +110,8 @@ Result exec_op(ActiveScope * context, GenericOp op){
             break;
         }
         case OT_EQ:{
-            Result first = exec_arg(context, op.op.op_eq.first);
-            Result second = exec_arg(context, op.op.op_eq.second);
+            Result first = exec_arg(module, context, op.op.op_eq.first);
+            Result second = exec_arg(module, context, op.op.op_eq.second);
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('EQ')", context->name);
             }
@@ -126,8 +125,8 @@ Result exec_op(ActiveScope * context, GenericOp op){
             return result;
         }
         case OT_NEQ:{
-            Result first = exec_arg(context, op.op.op_neq.first);
-            Result second = exec_arg(context, op.op.op_neq.second);
+            Result first = exec_arg(module, context, op.op.op_neq.first);
+            Result second = exec_arg(module, context, op.op.op_neq.second);
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('NEQ')", context->name);
             }
@@ -141,8 +140,8 @@ Result exec_op(ActiveScope * context, GenericOp op){
             return result;
         }
         case OT_OR:{
-            Result first = exec_arg(context, op.op.op_or.first);
-            Result second = exec_arg(context, op.op.op_or.second);
+            Result first = exec_arg(module, context, op.op.op_or.first);
+            Result second = exec_arg(module, context, op.op.op_or.second);
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('OR')", context->name);
             }
@@ -150,8 +149,8 @@ Result exec_op(ActiveScope * context, GenericOp op){
             return result;
         }
         case OT_XOR:{
-            Result first = exec_arg(context, op.op.op_xor.first);
-            Result second = exec_arg(context, op.op.op_xor.second);
+            Result first = exec_arg(module, context, op.op.op_xor.first);
+            Result second = exec_arg(module, context, op.op.op_xor.second);
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('XOR')", context->name);
             }
@@ -159,7 +158,7 @@ Result exec_op(ActiveScope * context, GenericOp op){
             return result;
         }
         case OT_NOT:{
-            Result first = exec_arg(context, op.op.op_not.first);
+            Result first = exec_arg(module, context, op.op.op_not.first);
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('NOT')", context->name);
             }
@@ -167,7 +166,7 @@ Result exec_op(ActiveScope * context, GenericOp op){
             return result;
         }
         case OT_OUT:{
-            Result first = exec_arg(context, op.op.op_out.first);
+            Result first = exec_arg(module, context, op.op.op_out.first);
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('OUT')", context->name);
             }
@@ -175,7 +174,7 @@ Result exec_op(ActiveScope * context, GenericOp op){
             break;
         }
         case OT_OUTCHAR:{
-            Result first = exec_arg(context, op.op.op_outchar.first);
+            Result first = exec_arg(module, context, op.op.op_outchar.first);
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('OUTCHAR')", context->name);
             }
@@ -183,7 +182,7 @@ Result exec_op(ActiveScope * context, GenericOp op){
             break;
         }
         case OT_OUTNUM:{
-            Result first = exec_arg(context, op.op.op_outnum.first);
+            Result first = exec_arg(module, context, op.op.op_outnum.first);
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('OUTNUM')", context->name);
             }
@@ -191,7 +190,7 @@ Result exec_op(ActiveScope * context, GenericOp op){
             break;
         }
         case OT_RETURN:{
-            Result first = exec_arg(context, op.op.op_return.first);
+            Result first = exec_arg(module, context, op.op.op_return.first);
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('RETURN')", context->name);
             }
@@ -200,24 +199,37 @@ Result exec_op(ActiveScope * context, GenericOp op){
             break;
         }
         case OT_EXEC:{
-            interpreter_err_in("EXEC is not allowed inside a scope", context->name);
+            Result first = exec_arg(module, context, op.op.op_exec.first);
+            if(first.is_null){
+                interpreter_err_in("NULL ARGUMENT ERROR ('EXEC')", context->name);
+            }
+            else if(!first.is_scope){
+                interpreter_err_in("EXECTED AN SCOPE REFERENCE, BUT WAS BYTE ('EXEC')", context->name);
+            }
+            Result result = execute_scope(module, first.scope_name, first.is_copy);
+            return result;
+
         };
     }
     return null_result();
 }
 
-Result exec_arg(ActiveScope * context, Argument arg){
+Result exec_arg(Module * module, ActiveScope * context, Argument arg){
     if(arg.is_byte){
         Result result = byte_result(arg.byte);
+        return result;
+    }
+    else if(arg.is_ref || arg.is_copy_ref){
+        Result result = scope_result(arg.scope_name, arg.is_copy_ref);
         return result;
     }
     else if(arg.is_sequence){
         for(int i = 0; i<arg.sequence.op_count; i++){
             if(i == arg.sequence.op_count - 1){
-                return exec_op(context, arg.sequence.ops[i]);
+                return exec_op(module, context, arg.sequence.ops[i]);
             }
             else {
-                exec_op(context, arg.sequence.ops[i]);
+                exec_op(module, context, arg.sequence.ops[i]);
             }
         }
     }
@@ -254,7 +266,7 @@ Result execute_scope(Module * context, char * scope_name, int is_copy){
 
     for(int i=0; i<active_scope.statements.statements_len; i++){
         GenericOp op = active_scope.statements.statements[i];
-        exec_op(&active_scope, op);
+        exec_op(context, &active_scope, op);
         if(active_scope.is_returned){
             if(!is_copy){
                 context->scopes.arr[scope_index] = (Scope) {active_scope.name, active_scope.stack, active_scope.statements};
