@@ -40,7 +40,6 @@ void check_expect_scope(Argument arg){
 
 Result exec_arg(Module * module, ActiveScope * context, Argument arg);
 Result execute_scope(Module * context, char * scope_name, int is_copy);
-int find_index_of_scope_by_name(Module * module, char * name);
 
 Result get_top_of_stack(ByteVector bytes){
     if(bytes.len == 0){
@@ -280,7 +279,6 @@ Result execute_scope(Module * context, char * scope_name, int is_copy){
 
 Result interpret_exec(Module * context, Op_EXEC exec){
     check_expect_scope(exec.first);
-    printf("%s\n", exec.first.scope_name);
     return execute_scope(context, exec.first.scope_name, exec.first.is_copy_ref);
 }
 

@@ -1,8 +1,10 @@
-a:{
-    PUT [01000001]
-    OUTCHAR (PEEK)
-    IF (TAKE) (RETURN (EXEC $a))
+returns_b:{
+    RETURN [01100010];
+}
+
+b:{
+    OUTCHAR (EXEC $returns_b);
     RETURN [0]
 }
 
-EXEC $a;
+EXEC $b;
