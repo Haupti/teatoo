@@ -11,5 +11,4 @@ implement these functions
 * REVERSE -- reverses the stack on the scope
 * NULL? <arg> -- checks if the given thing is NULL
 
-* implement copy actually doing something
 * make exec work inside a scope to exec itself or other scopes in the module context
