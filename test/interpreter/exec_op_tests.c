@@ -33,7 +33,7 @@ MODULAR_DESCRIBE(exec_op_tests, {
     TEST("executes put, returns null", {
         Byte stack_vals[] = ARRAY('c', '\0', 255, 'x', 't');
         Byte * mem = malloc(sizeof(Byte) * (LEN(stack_vals)));
-        memcpy(mem, stack_vals, sizeof(Byte) *(LEN(stack_vals)));
+        memcpy(mem, stack_vals, sizeof(Byte) * (LEN(stack_vals)));
         ByteVector stack = ARRAY(mem, LEN(stack_vals));
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
@@ -42,7 +42,7 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ASSERT_INT_EQUALS(active_scope.stack.len, 6);
         ASSERT_INT_EQUALS(result.is_byte, 0);
         ASSERT_INT_EQUALS(result.is_null, 1);
-        ASSERT_INT_EQUALS(stack.arr[5], 'Y');
+        ASSERT_INT_EQUALS(active_scope.stack.arr[5], 'Y');
     })
     TEST("executes take, returns top of stack and removes it", {
         Byte stack_vals[] = ARRAY('c', '\0', 255, 'x', 't');

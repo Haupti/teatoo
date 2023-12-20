@@ -80,7 +80,9 @@ Result exec_op(ActiveScope * context, GenericOp op){
                 interpreter_err_in("NULL ARGUMENT ERROR ('PUT')", context->name);
             }
             else {
+                printf("before stack len %d\n", context->stack.len);
                 context->stack.len = context->stack.len + 1;
+                printf("stack len %d\n", context->stack.len);
                 context->stack.arr = checked_realloc(context->stack.arr, sizeof(Byte) * (context->stack.len));
                 context->stack.arr[context->stack.len -1] = result.byte;
             }
