@@ -86,6 +86,14 @@ GenericOp new_return(Argument arg){
     return gen_op;
 }
 
+GenericOp new_exec(Argument arg){
+    Op_EXEC exec = {arg};
+    union Op op;
+    op.op_exec = exec;
+    GenericOp gen_op = {OT_EXEC, op};
+    return gen_op;
+}
+
 GenericOp new_if(Argument condition, Argument operation){
     Op_IF iff = {condition, operation};
     union Op op;

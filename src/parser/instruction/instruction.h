@@ -128,6 +128,7 @@ GenericOp new_not(Byte b1);
 GenericOp new_eq(Byte b1, Byte b2);
 GenericOp new_neq(Byte b1, Byte b2);
 GenericOp new_return(Argument arg);
+GenericOp new_exec(Argument arg);
 GenericOp new_if(Argument condition, Argument operation);
 
 #endif

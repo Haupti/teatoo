@@ -3,6 +3,6 @@
 
 #include "../parser/parser.h"
 
-int interpret(Module mod);
+int interpret(Module * mod);
 
 #endif

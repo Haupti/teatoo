@@ -14,7 +14,7 @@ char tt(char * program){
     free(tokens.arr);
     tokens.arr = NULL;
 
-    interpret(module);
+    interpret(&module);
 
     return '\0';
 }

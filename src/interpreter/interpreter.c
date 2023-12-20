@@ -222,41 +222,57 @@ Result exec_arg(ActiveScope * context, Argument arg){
     return null_result();
 }
 
-Result execute_scope(Module context, Scope scope, int is_copy){
-    ActiveScope active_scope = {scope.name, scope.stack, scope.statements, null_result(), 0};
+ByteVector new_stack(){
+    ByteVector stack = {NULL, 0};
+    return stack;
+}
+
+int find_index_of_scope_by_name(Module * module, char * name){
+    for(int i = 0; i < module->scopes.len; i++){
+        if(strcmp(name, module->scopes.arr[i].name) == 0){
+            return i;
+        }
+    }
+    printf("ERROR: referenced scope not in module '%s'\n",name);
+    exit(EXIT_FAILURE);
+}
+
+Result execute_scope(Module * context, char * scope_name, int is_copy){
+    int scope_index = find_index_of_scope_by_name(context, scope_name);
+    Scope scope = context->scopes.arr[scope_index];
+
+    ActiveScope active_scope;
+
+    if(is_copy){
+        active_scope = (ActiveScope) {scope.name, new_stack(), scope.statements, null_result(), 0};
+    }
+    else {
+        active_scope = (ActiveScope) {scope.name, scope.stack, scope.statements, null_result(), 0};;
+    }
 
     for(int i=0; i<active_scope.statements.statements_len; i++){
         GenericOp op = active_scope.statements.statements[i];
+        exec_op(&active_scope, op);
         if(active_scope.is_returned){
+            if(!is_copy){
+                context->scopes.arr[scope_index] = (Scope) {active_scope.name, active_scope.stack, active_scope.statements};
+            }
             return active_scope.return_result;
         }
-        exec_op(&active_scope, op);
     }
     return null_result();
 }
 
 
-Result interpret_exec(Module context, Op_EXEC exec){
+Result interpret_exec(Module * context, Op_EXEC exec){
     check_expect_scope(exec.first);
-    int is_copy;
-    if(exec.first.is_copy_ref){
-        is_copy = 1;
-    }
-    else if(exec.first.is_ref){
-        is_copy = 0;
-    }
-    for(int i = 0; i < context.scopes.len; i++){
-        if(strcmp(exec.first.scope_name, context.scopes.arr[i].name) == 0){
-            Scope match = context.scopes.arr[i];
-            return execute_scope(context, match, is_copy);
-        }
-    }
-    return null_result();
+    printf("%s\n", exec.first.scope_name);
+    return execute_scope(context, exec.first.scope_name, exec.first.is_copy_ref);
 }
 
-int interpret(Module mod){
-    if(mod.has_entrypoint){
-        interpret_exec(mod, mod.entrypoint);
+int interpret(Module * mod){
+    if(mod->has_entrypoint){
+        interpret_exec(mod, mod->entrypoint);
     }
     return EXIT_SUCCESS;
 }
