@@ -225,6 +225,7 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             }
             context->return_result = result;
             context->is_returned = 1;
+            return result;
             break;
         }
         case OT_IS_NULL:{
@@ -236,8 +237,9 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             else{
                 result = byte_result(0);
             }
-            context->return_result = first;
+            context->return_result = result;
             context->is_returned = 1;
+            return result;
             break;
         }
         case OT_EXEC:{
@@ -274,6 +276,9 @@ Result exec_arg(Module * module, ActiveScope * context, Argument arg){
                 exec_op(module, context, arg.sequence.ops[i]);
             }
         }
+    }
+    else if(arg.is_null){
+        return null_result();
     }
     return null_result();
 }

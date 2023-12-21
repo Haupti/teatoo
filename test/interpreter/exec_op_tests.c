@@ -67,6 +67,17 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ASSERT_INT_EQUALS(result.is_null, 1);
         ASSERT_INT_EQUALS(active_scope.stack.arr[5], 'Y');
     })
+    TEST("executes NULL?, returns 255 because arg is null", {
+        Byte stack_vals[] = ARRAY();
+        ByteVector stack = ARRAY(NULL, 0);
+        ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
+
+        Result result = exec_op(&module, &active_scope, new_is_null(new_null_argument()));
+
+        ASSERT_INT_EQUALS(result.is_byte, 1);
+        ASSERT_INT_EQUALS(result.is_null, 0);
+        ASSERT_INT_EQUALS(result.byte, 255);
+    })
     TEST("executes take, returns top of stack and removes it", {
         Byte stack_vals[] = ARRAY('c', '\0', 255, 'x', 't');
         Byte * mem = malloc(sizeof(Byte) * (LEN(stack_vals)));

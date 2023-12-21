@@ -16,6 +16,7 @@ typedef struct Argument {
     char * scope_name;
     int is_ref;
     int is_copy_ref;
+    int is_null;
 } Argument;
 
 typedef struct {
@@ -28,5 +29,6 @@ Argument new_sequence_argument(Sequence sequence);
 Argument new_byte_argument(Byte byte);
 Argument new_scope_ref_argument(char * scope_name);
 Argument new_scope_copy_ref_argument(char * scope_name);
+Argument new_null_argument();
 
 #endif
