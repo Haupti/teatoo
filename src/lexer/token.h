@@ -30,8 +30,11 @@
     x.type == OUTNUM ? "OUTNUM" :( \
     x.type == OUTCHAR ? "OUTCHAR" :( \
     x.type == OUT ? "OUT" :(\
+    x.type == POW ? "POW" :(\
+    x.type == IS_EMPTY ? "EMPTY?" :(\
+    x.type == IS_NULL ? "NULL?" :(\
     "" \
-))))))))))))))))))))))))))))
+)))))))))))))))))))))))))))))))
 
 typedef enum {
    IF,
@@ -61,7 +64,10 @@ typedef enum {
    EXEC,
    OUTNUM,
    OUTCHAR,
-   OUT
+   OUT,
+   POW,
+   IS_EMPTY,
+   IS_NULL,
 } TokenType;
 
 typedef struct {

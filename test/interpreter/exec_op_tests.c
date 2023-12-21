@@ -19,6 +19,28 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ASSERT_INT_EQUALS(result.is_byte, 0);
         ASSERT_INT_EQUALS(result.is_null, 1);
     })
+    TEST("executes EMPTY?, returns 255 because stack is empty", {
+        Byte empty_stack_vals[] = ARRAY();
+        ByteVector empty_stack = ARRAY(empty_stack_vals, 0);
+        ActiveScope active_scope_empty_stack = ARRAY("test_scope_empty_stack", empty_stack, statements, null_result(), 0);
+
+        Result result = exec_op(&module, &active_scope_empty_stack, new_is_empty());
+
+        ASSERT_INT_EQUALS(active_scope_empty_stack.stack.len, 0);
+        ASSERT_INT_EQUALS(result.is_byte, 1);
+        ASSERT_INT_EQUALS(result.byte, 255);
+    })
+    TEST("executes EMPTY?, returns 0 because stack is not empty", {
+        Byte stack_vals[] = ARRAY(123);
+        ByteVector stack = ARRAY(stack_vals, LEN(stack_vals));
+        ActiveScope active_scope = ARRAY("test_scope_empty_stack", stack, statements, null_result(), 0);
+
+        Result result = exec_op(&module, &active_scope, new_is_empty());
+
+        ASSERT_INT_EQUALS(active_scope.stack.len, 1);
+        ASSERT_INT_EQUALS(result.is_byte, 1);
+        ASSERT_INT_EQUALS(result.byte, 0);
+    })
     TEST("executes peek, returns last of stack (top)", {
         Byte stack_vals[] = ARRAY('c', '\0', 255, 'x', 't');
         ByteVector stack = ARRAY(stack_vals, 5);

@@ -51,6 +51,18 @@ TokenVector create_tokens(char * prog, int len){
                     tokens[tokens_index] = new_token(IF);
                     tokens_index += 1;
                 }
+                else if(strcmp(word, "POW") == 0){
+                    tokens[tokens_index] = new_token(POW);
+                    tokens_index += 1;
+                }
+                else if(strcmp(word, "EMPTY?") == 0){
+                    tokens[tokens_index] = new_token(IS_EMPTY);
+                    tokens_index += 1;
+                }
+                else if(strcmp(word, "NULL?") == 0){
+                    tokens[tokens_index] = new_token(IS_NULL);
+                    tokens_index += 1;
+                }
                 else if(strcmp(word, "EQ") == 0){
                     tokens[tokens_index] = new_token(EQ);
                     tokens_index += 1;

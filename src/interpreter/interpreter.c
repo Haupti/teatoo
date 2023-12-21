@@ -56,6 +56,16 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             return get_top_of_stack(context->stack);
             break;
         }
+        case OT_IS_EMPTY:{
+            Result res =  get_top_of_stack(context->stack);
+            if(res.is_null){
+                return byte_result(255);
+            }
+            else{
+                return byte_result(0);
+            }
+            break;
+        }
         case OT_TAKE:{
             Result result = get_top_of_stack(context->stack);
 
@@ -192,6 +202,39 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             Result first = exec_arg(module, context, op.op.op_return.first);
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('RETURN')", context->name);
+            }
+            context->return_result = first;
+            context->is_returned = 1;
+            break;
+        }
+        case OT_POW:{
+            Result first = exec_arg(module, context, op.op.op_pow.first);
+            if(first.is_null){
+                interpreter_err_in("NULL ARGUMENT ERROR ('POW')", context->name);
+            }
+            else if(!first.is_byte){
+                interpreter_err_in("EXPECTED AN BYTE ARGUMENT ERROR ('POW')", context->name);
+            }
+
+            Result result;
+            if(first.byte == 0){
+                result = byte_result(0);
+            }
+            else{
+                result = byte_result(255);
+            }
+            context->return_result = result;
+            context->is_returned = 1;
+            break;
+        }
+        case OT_IS_NULL:{
+            Result first = exec_arg(module, context, op.op.op_is_null.first);
+            Result result;
+            if(first.is_null){
+                result = byte_result(255);
+            }
+            else{
+                result = byte_result(0);
             }
             context->return_result = first;
             context->is_returned = 1;

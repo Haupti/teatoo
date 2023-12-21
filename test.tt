@@ -10,7 +10,39 @@ hello_world:{
     OUTCHAR [01110010]
     OUTCHAR [01101100]
     OUTCHAR [01100100]
-    RETURN [0]
 }
 
-EXEC $hello_world;
+mem:{
+    IF (EMPTY?) (
+        PUT [01101000]
+        PUT [01100101]
+        PUT [01101100]
+        PUT [01101100]
+        PUT [01101111]
+        PUT [00100000]
+        PUT [01110111]
+        PUT [01101111]
+        PUT [01110010]
+        PUT [01101100]
+        PUT [01100100]
+        RETURN [1]
+    )
+    RETURN (TAKE)
+}
+
+run_hello_world:{
+    EXEC mem
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+    OUTCHAR (EXEC mem)
+}
+
+EXEC $run_hello_world;

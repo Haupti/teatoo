@@ -20,7 +20,10 @@ typedef enum {
     OT_EXEC,
     OT_OUT,
     OT_OUTCHAR,
-    OT_OUTNUM
+    OT_OUTNUM,
+    OT_POW,
+    OT_IS_EMPTY,
+    OT_IS_NULL,
 } OpType;
 
 
@@ -61,13 +64,9 @@ typedef struct Op_NOT {
     struct Argument first;
 } Op_NOT;
 
-typedef struct Op_TAKE {} Op_TAKE;
-
 typedef struct Op_PUT {
     struct Argument first;
 } Op_PUT;
-
-typedef struct Op_PEEK {} Op_PEEK;
 
 typedef struct Op_RETURN {
     struct Argument first;
@@ -89,6 +88,20 @@ typedef struct Op_OUTNUM {
     struct Argument first;
 } Op_OUTNUM;
 
+typedef struct Op_POW {
+    struct Argument first;
+} Op_POW;
+
+typedef struct Op_IS_NULL {
+    struct Argument first;
+} Op_IS_NULL;
+
+typedef struct Op_IS_EMPTY {} Op_IS_EMPTY;
+
+typedef struct Op_TAKE {} Op_TAKE;
+
+typedef struct Op_PEEK {} Op_PEEK;
+
 union Op {
    struct Op_IF op_if;
    struct Op_EQ op_eq;
@@ -105,6 +118,9 @@ union Op {
    struct Op_OUT op_out;
    struct Op_OUTCHAR op_outchar;
    struct Op_OUTNUM op_outnum;
+   struct Op_POW op_pow;
+   struct Op_IS_EMPTY op_is_empty;
+   struct Op_IS_NULL op_is_null;
 };
 
 typedef struct GenericOp {
@@ -119,6 +135,7 @@ typedef struct Statements {
 
 Statements new_statements(GenericOp * statements, size_t len);
 GenericOp new_peek();
+GenericOp new_is_empty();
 GenericOp new_put(Byte byte);
 GenericOp new_take();
 GenericOp new_and(Byte b1, Byte b2);
@@ -129,6 +146,8 @@ GenericOp new_eq(Byte b1, Byte b2);
 GenericOp new_neq(Byte b1, Byte b2);
 GenericOp new_return(Argument arg);
 GenericOp new_exec(Argument arg);
+GenericOp new_pow(Argument arg);
+GenericOp new_is_null(Argument arg);
 GenericOp new_if(Argument condition, Argument operation);
 
 #endif

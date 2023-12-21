@@ -32,6 +32,12 @@ MODULAR_DESCRIBE(lexer_tests, {
                                    new_token(AND), new_token(NOT), new_token(NOT), new_token(OUT), new_token(OUTCHAR), new_token(OUTNUM), new_token(PEEK), new_token(GRP_OPEN), new_token(GRP_CLOSE));
         ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
     })
+    TEST("reads new keywords", {
+        char prog[] = "EMTPY? NULL? POW";
+        TokenVector vec = create_tokens(prog, strlen(prog));
+        Token expected[] = ARRAY(new_token(IS_EMPTY), new_token(IS_NULL), new_token(POW));
+        ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
+    })
     TEST("empty program has no tokens", {
         char prog[] = "";
         TokenVector vec = create_tokens(prog, strlen(prog));

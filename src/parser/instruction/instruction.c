@@ -30,6 +30,14 @@ GenericOp new_take(){
     return gen_op;
 }
 
+GenericOp new_is_empty(){
+    Op_IS_EMPTY is_empty = {};
+    union Op op;
+    op.op_is_empty = is_empty;
+    GenericOp gen_op = {OT_IS_EMPTY, op};
+    return gen_op;
+}
+
 GenericOp new_and(Byte b1, Byte b2){
     Op_AND and = {new_byte_argument(b1), new_byte_argument(b2)};
     union Op op;
@@ -91,6 +99,22 @@ GenericOp new_exec(Argument arg){
     union Op op;
     op.op_exec = exec;
     GenericOp gen_op = {OT_EXEC, op};
+    return gen_op;
+}
+
+GenericOp new_pow(Argument arg){
+    Op_POW pow = {arg};
+    union Op op;
+    op.op_pow = pow;
+    GenericOp gen_op = {OT_POW, op};
+    return gen_op;
+}
+
+GenericOp new_is_null(Argument arg){
+    Op_IS_NULL is_null = {arg};
+    union Op op;
+    op.op_is_null = is_null;
+    GenericOp gen_op = {OT_IS_NULL, op};
     return gen_op;
 }
 

@@ -218,6 +218,20 @@ GenericOp parse_op(TokenSlice slice){
             GenericOp gen_op = {OT_PUT, op};
             return gen_op;
         }
+        case POW:{
+            Op_POW op_pow = {collect_one_argument(arguments_slice)};
+            union Op op;
+            op.op_pow = op_pow;
+            GenericOp gen_op = {OT_POW, op};
+            return gen_op;
+        }
+        case IS_NULL:{
+            Op_IS_NULL op_is_null = {collect_one_argument(arguments_slice)};
+            union Op op;
+            op.op_is_null = op_is_null;
+            GenericOp gen_op = {OT_IS_NULL, op};
+            return gen_op;
+        }
         case OUT:{
             Op_OUT op_out = {collect_one_argument(arguments_slice)};
             union Op op;
@@ -251,6 +265,13 @@ GenericOp parse_op(TokenSlice slice){
             union Op op;
             op.op_peek = op_peek;
             GenericOp gen_op = {OT_PEEK, op};
+            return gen_op;
+        }
+        case IS_EMPTY:{
+            Op_IS_EMPTY op_is_empty = {};
+            union Op op;
+            op.op_is_empty = op_is_empty;
+            GenericOp gen_op = {OT_IS_EMPTY, op};
             return gen_op;
         }
         default:{
