@@ -251,6 +251,8 @@ int find_index_of_scope_by_name(Module * module, char * name){
 }
 
 Result execute_scope(Module * context, char * scope_name, int is_copy){
+    printf("%s\n",context->scopes.arr[0].name);
+    printf("%s\n",context->scopes.arr[1].name);
     int scope_index = find_index_of_scope_by_name(context, scope_name);
     Scope scope = context->scopes.arr[scope_index];
 

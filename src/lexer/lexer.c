@@ -96,7 +96,10 @@ TokenVector create_tokens(char * prog, int len){
                     tokens_index += 1;
                 }
                 else { // must be an identifier then
-                    tokens[tokens_index] = new_identifier_token(word);
+                    char current_word[word_index+2];
+                    memcpy(current_word, word, word_index+1);
+                    current_word[word_index+1] = '\0';
+                    tokens[tokens_index] = new_identifier_token(current_word);
                     tokens_index += 1;
                 }
                 memset(word, '\0', sizeof(word));
