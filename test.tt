@@ -1,10 +1,16 @@
-returns_b:{
-    RETURN [01100010];
-}
-
-b:{
-    OUTCHAR (EXEC $returns_b);
+hello_world:{
+    OUTCHAR [01101000]
+    OUTCHAR [01100101]
+    OUTCHAR [01101100]
+    OUTCHAR [01101100]
+    OUTCHAR [01101111]
+    OUTCHAR [00100000]
+    OUTCHAR [01110111]
+    OUTCHAR [01101111]
+    OUTCHAR [01110010]
+    OUTCHAR [01101100]
+    OUTCHAR [01100100]
     RETURN [0]
 }
 
-EXEC $b;
+EXEC $hello_world;
