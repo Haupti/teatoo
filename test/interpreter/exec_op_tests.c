@@ -60,7 +60,7 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ByteVector stack = ARRAY(mem, LEN(stack_vals));
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
-        Result result = exec_op(&module, &active_scope, new_put('Y'));
+        Result result = exec_op(&module, &active_scope, new_put(new_byte_argument('Y')));
 
         ASSERT_INT_EQUALS(active_scope.stack.len, 6);
         ASSERT_INT_EQUALS(result.is_byte, 0);
@@ -113,14 +113,14 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ByteVector stack = ARRAY(mem, LEN(stack_vals));
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
-        Result result1 = exec_op(&module, &active_scope, new_and(2, 254));
+        Result result1 = exec_op(&module, &active_scope, new_and(new_byte_argument(2), new_byte_argument(254)));
 
         ASSERT_INT_EQUALS(active_scope.stack.len, 5);
         ASSERT_INT_EQUALS(result1.is_byte, 1);
         ASSERT_INT_EQUALS(result1.is_null, 0);
         ASSERT_INT_EQUALS(result1.byte, 2);
 
-        Result result2 = exec_op(&module, &active_scope, new_and(1, 254));
+        Result result2 = exec_op(&module, &active_scope, new_and(new_byte_argument(1), new_byte_argument(254)));
 
         ASSERT_INT_EQUALS(result2.is_byte, 1);
         ASSERT_INT_EQUALS(result2.is_null, 0);
@@ -134,14 +134,14 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
 
-        Result result1 = exec_op(&module, &active_scope, new_or(2, 254));
+        Result result1 = exec_op(&module, &active_scope, new_or(new_byte_argument(2), new_byte_argument(254)));
 
         ASSERT_INT_EQUALS(active_scope.stack.len, 5);
         ASSERT_INT_EQUALS(result1.is_byte, 1);
         ASSERT_INT_EQUALS(result1.is_null, 0);
         ASSERT_INT_EQUALS(result1.byte, 254);
 
-        Result result2 = exec_op(&module, &active_scope, new_or(1, 254));
+        Result result2 = exec_op(&module, &active_scope, new_or(new_byte_argument(1), new_byte_argument(254)));
 
         ASSERT_INT_EQUALS(result2.is_byte, 1);
         ASSERT_INT_EQUALS(result2.is_null, 0);
@@ -155,14 +155,14 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
 
-        Result result1 = exec_op(&module, &active_scope, new_not(0));
+        Result result1 = exec_op(&module, &active_scope, new_not(new_byte_argument(0)));
 
         ASSERT_INT_EQUALS(active_scope.stack.len, 5);
         ASSERT_INT_EQUALS(result1.is_byte, 1);
         ASSERT_INT_EQUALS(result1.is_null, 0);
         ASSERT_INT_EQUALS(result1.byte, 255);
 
-        Result result2 = exec_op(&module, &active_scope, new_not(1));
+        Result result2 = exec_op(&module, &active_scope, new_not(new_byte_argument(1)));
 
         ASSERT_INT_EQUALS(result2.is_byte, 1);
         ASSERT_INT_EQUALS(result2.is_null, 0);
@@ -176,14 +176,14 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
 
-        Result result1 = exec_op(&module, &active_scope, new_xor(1, 254));
+        Result result1 = exec_op(&module, &active_scope, new_xor(new_byte_argument(1), new_byte_argument(254)));
 
         ASSERT_INT_EQUALS(active_scope.stack.len, 5);
         ASSERT_INT_EQUALS(result1.is_byte, 1);
         ASSERT_INT_EQUALS(result1.is_null, 0);
         ASSERT_INT_EQUALS(result1.byte, 255);
 
-        Result result2 = exec_op(&module, &active_scope, new_xor(1,255));
+        Result result2 = exec_op(&module, &active_scope, new_xor(new_byte_argument(1),new_byte_argument(255)));
 
         ASSERT_INT_EQUALS(result2.is_byte, 1);
         ASSERT_INT_EQUALS(result2.is_null, 0);
@@ -197,14 +197,14 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
 
-        Result result1 = exec_op(&module, &active_scope, new_eq(1, 254));
+        Result result1 = exec_op(&module, &active_scope, new_eq(new_byte_argument(1), new_byte_argument(254)));
 
         ASSERT_INT_EQUALS(active_scope.stack.len, 5);
         ASSERT_INT_EQUALS(result1.is_byte, 1);
         ASSERT_INT_EQUALS(result1.is_null, 0);
         ASSERT_INT_EQUALS(result1.byte, 0);
 
-        Result result2 = exec_op(&module, &active_scope, new_eq(123,123));
+        Result result2 = exec_op(&module, &active_scope, new_eq(new_byte_argument(123),new_byte_argument(123)));
 
         ASSERT_INT_EQUALS(result2.is_byte, 1);
         ASSERT_INT_EQUALS(result2.is_null, 0);
@@ -218,14 +218,14 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
 
-        Result result1 = exec_op(&module, &active_scope, new_neq(1, 254));
+        Result result1 = exec_op(&module, &active_scope, new_neq(new_byte_argument(1), new_byte_argument(254)));
 
         ASSERT_INT_EQUALS(active_scope.stack.len, 5);
         ASSERT_INT_EQUALS(result1.is_byte, 1);
         ASSERT_INT_EQUALS(result1.is_null, 0);
         ASSERT_INT_EQUALS(result1.byte, 255);
 
-        Result result2 = exec_op(&module, &active_scope, new_neq(123,123));
+        Result result2 = exec_op(&module, &active_scope, new_neq(new_byte_argument(123),new_byte_argument(123)));
 
         ASSERT_INT_EQUALS(result2.is_byte, 1);
         ASSERT_INT_EQUALS(result2.is_null, 0);
@@ -253,7 +253,7 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ByteVector stack = ARRAY(mem, LEN(stack_vals));
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
-        GenericOp if_generic_ops[] = ARRAY(new_put(5));
+        GenericOp if_generic_ops[] = ARRAY(new_put(new_byte_argument(5)));
         Sequence if_ops = ARRAY(if_generic_ops, LEN(if_generic_ops));
 
         Result result = exec_op(&module, &active_scope, new_if(new_byte_argument(255), new_sequence_argument(if_ops)));
@@ -272,7 +272,7 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
 
 
-        GenericOp if_generic_ops[] = ARRAY(new_put(5));
+        GenericOp if_generic_ops[] = ARRAY(new_put(new_byte_argument(5)));
         Sequence if_ops = ARRAY(if_generic_ops, LEN(if_generic_ops));
 
         Result result = exec_op(&module, &active_scope, new_if(new_byte_argument(0), new_sequence_argument(if_ops)));

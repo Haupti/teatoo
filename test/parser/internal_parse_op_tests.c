@@ -38,4 +38,16 @@ MODULAR_DESCRIBE(internal_parse_op_tests, {
         ASSERT_INT_EQUALS((int) op.op.op_if.operation.sequence.op_count, 1);
         ASSERT_EQUALS(op.op.op_if.operation.sequence.ops[0].type, OT_TAKE);
     });
+    TEST("parses STACK", {
+        Token tokens[] = ARRAY(test_token(STACK), test_token(COPY), test_identifier_token("jörg"), test_token(BYTE_START), test_token(BIT_ON), test_token(BYTE_END));
+        TokenSlice slice = new_token_slice(tokens, LEN(tokens));
+
+        GenericOp op = parse_op(slice);
+
+        ASSERT_EQUALS(op.type, OT_STACK);
+        ASSERT_INT_EQUALS(op.op.op_stack.first.is_copy_ref, 1);
+        ASSERT_STR_EQUALS(op.op.op_stack.first.scope_name, "jörg");
+        ASSERT_INT_EQUALS(op.op.op_stack.second.is_byte, 1);
+        ASSERT_INT_EQUALS(op.op.op_stack.second.byte, 0xFF);
+    });
 });

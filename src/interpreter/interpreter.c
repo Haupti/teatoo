@@ -40,6 +40,8 @@ void check_expect_scope(Argument arg){
 
 Result exec_arg(Module * module, ActiveScope * context, Argument arg);
 Result execute_scope(Module * context, char * scope_name, int is_copy);
+Result execute_whole_scope(Module * context, Scope scope);
+int find_index_of_scope_by_name(Module * module, char * name);
 
 Result get_top_of_stack(ByteVector bytes){
     if(bytes.len == 0){
@@ -47,6 +49,33 @@ Result get_top_of_stack(ByteVector bytes){
     }
     else {
         return byte_result(bytes.arr[bytes.len - 1]);
+    }
+}
+
+void put_on_stack(ActiveScope * scope, Byte byte){
+    scope->stack.len = scope->stack.len + 1;
+    scope->stack.arr = checked_realloc(scope->stack.arr, sizeof(Byte) * (scope->stack.len));
+    scope->stack.arr[scope->stack.len -1] = byte;
+}
+
+void put_on_stack_of(Scope * scope, Byte byte){
+    scope->stack.len = scope->stack.len + 1;
+    scope->stack.arr = checked_realloc(scope->stack.arr, sizeof(Byte) * (scope->stack.len));
+    scope->stack.arr[scope->stack.len -1] = byte;
+}
+
+void remove_head_from_stack(ActiveScope * scope){
+    if(scope->stack.len == 0){
+        return;
+    }
+    if(scope->stack.len == 1){
+        scope->stack.len = scope->stack.len - 1;
+        free(scope->stack.arr);
+        scope->stack.arr = NULL;
+    }
+    else if(scope->stack.len > 1){
+        scope->stack.len = scope->stack.len - 1;
+        scope->stack.arr = checked_realloc(scope->stack.arr, sizeof(Byte) * scope->stack.len);
     }
 }
 
@@ -68,21 +97,8 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
         }
         case OT_TAKE:{
             Result result = get_top_of_stack(context->stack);
-
-            if(context->stack.len == 0){
-                return result;
-            }
-            else if(context->stack.len == 1){
-                context->stack.len = context->stack.len - 1;
-                free(context->stack.arr);
-                context->stack.arr = NULL;
-                return result;
-            }
-            else if(context->stack.len > 1){
-                context->stack.len = context->stack.len - 1;
-                context->stack.arr = checked_realloc(context->stack.arr, sizeof(Byte) * context->stack.len);
-                return result;
-            }
+            remove_head_from_stack(context);
+            return result;
         }
         case OT_PUT:{
             Result result = exec_arg(module, context, op.op.op_put.first);
@@ -90,9 +106,7 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
                 interpreter_err_in("NULL ARGUMENT ERROR ('PUT')", context->name);
             }
             else {
-                context->stack.len = context->stack.len + 1;
-                context->stack.arr = checked_realloc(context->stack.arr, sizeof(Byte) * (context->stack.len));
-                context->stack.arr[context->stack.len -1] = result.byte;
+                put_on_stack(context, result.byte);
             }
             break;
         }
@@ -148,11 +162,48 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             }
             return result;
         }
+        case OT_STACK:{
+            Result first = exec_arg(module, context, op.op.op_stack.first);
+            Result second = exec_arg(module, context, op.op.op_stack.second);
+
+            if(first.is_null || second.is_null){
+                interpreter_err_in("NULL ARGUMENT ERROR ('STACK')", context->name);
+            }
+            else if(!first.is_scope){
+                interpreter_err_in("SCOPE EXPECTED AS FIRST ARGUMENT ERROR ('STACK')", context->name);
+            }
+            if(!second.is_byte){
+                interpreter_err_in("BYTE EXPECTED AS SECOND ARGUMENT ERROR ('STACK')", context->name);
+            }
+
+            if(!first.is_copy){
+                int scope_index = find_index_of_scope_by_name(module, first.scope_name);
+                Scope * scope = &module->scopes.arr[scope_index];
+                put_on_stack_of(scope, second.byte);
+                Result result = scope_result(first.scope_name, first.is_copy);
+                return result;
+            }
+            else{
+                int scope_index = find_index_of_scope_by_name(module, first.scope_name);
+                Scope scope = module->scopes.arr[scope_index];
+
+                Byte * persistent_stack = malloc(sizeof(Byte) * scope.stack.len + 1);
+                persistent_stack[scope.stack.len] = second.byte;
+                ByteVector vec = {persistent_stack, scope.stack.len + 1};
+
+                scope.stack = vec;
+                Result result = whole_scope_result(scope);
+                return result;
+            }
+        }
         case OT_OR:{
             Result first = exec_arg(module, context, op.op.op_or.first);
             Result second = exec_arg(module, context, op.op.op_or.second);
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('OR')", context->name);
+            }
+            else if(!first.is_byte || !second.is_byte){
+                interpreter_err_in("BYTE ARGUMENTS EXPECTED ERROR ('OR')", context->name);
             }
             Result result = byte_result(first.byte | second.byte);
             return result;
@@ -163,6 +214,9 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('XOR')", context->name);
             }
+            else if(!first.is_byte || !second.is_byte){
+                interpreter_err_in("BYTE ARGUMENTS EXPECTED ERROR ('XOR')", context->name);
+            }
             Result result = byte_result(first.byte ^ second.byte);
             return result;
         }
@@ -170,6 +224,9 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             Result first = exec_arg(module, context, op.op.op_not.first);
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('NOT')", context->name);
+            }
+            else if(!first.is_byte){
+                interpreter_err_in("BYTE ARGUMENT EXPECTED ERROR ('NOT')", context->name);
             }
             Result result = byte_result(~first.byte);
             return result;
@@ -247,12 +304,18 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             if(first.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('EXEC')", context->name);
             }
-            else if(!first.is_scope){
+            else if(!first.is_scope && !first.is_whole_scope){
                 interpreter_err_in("EXECTED AN SCOPE REFERENCE, BUT WAS BYTE ('EXEC')", context->name);
             }
-            Result result = execute_scope(module, first.scope_name, first.is_copy);
-            return result;
 
+            if(first.is_scope){
+                Result result = execute_scope(module, first.scope_name, first.is_copy);
+                return result;
+            }
+            else if(first.is_whole_scope){
+                Result result = execute_whole_scope(module, first.scope);
+                return result;
+            }
         };
     }
     return null_result();
@@ -283,7 +346,7 @@ Result exec_arg(Module * module, ActiveScope * context, Argument arg){
     return null_result();
 }
 
-ByteVector new_stack(){
+ByteVector new_stack_mem(){
     ByteVector stack = {NULL, 0};
     return stack;
 }
@@ -298,6 +361,24 @@ int find_index_of_scope_by_name(Module * module, char * name){
     exit(EXIT_FAILURE);
 }
 
+Result execute_whole_scope(Module * context, Scope scope){
+    ActiveScope active_scope = {scope.name, scope.stack, scope.statements, null_result(), 0};
+
+    for(int i=0; i<active_scope.statements.statements_len; i++){
+        GenericOp op = active_scope.statements.statements[i];
+        exec_op(context, &active_scope, op);
+        if(active_scope.is_returned){ break; }
+    }
+
+    if(active_scope.is_returned){
+        return active_scope.return_result;
+    }
+
+    free(active_scope.stack.arr);
+    active_scope.stack.arr = NULL;
+    return null_result();
+}
+
 Result execute_scope(Module * context, char * scope_name, int is_copy){
     int scope_index = find_index_of_scope_by_name(context, scope_name);
     Scope scope = context->scopes.arr[scope_index];
@@ -305,10 +386,12 @@ Result execute_scope(Module * context, char * scope_name, int is_copy){
     ActiveScope active_scope;
 
     if(is_copy){
-        active_scope = (ActiveScope) {scope.name, new_stack(), scope.statements, null_result(), 0};
+        ActiveScope tmp = {scope.name, new_stack_mem(), scope.statements, null_result(), 0};
+        active_scope = tmp;
     }
     else {
-        active_scope = (ActiveScope) {scope.name, scope.stack, scope.statements, null_result(), 0};;
+        ActiveScope tmp = {scope.name, scope.stack, scope.statements, null_result(), 0};
+        active_scope = tmp;
     }
 
     for(int i=0; i<active_scope.statements.statements_len; i++){

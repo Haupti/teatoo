@@ -14,8 +14,8 @@ GenericOp new_peek(){
     return gen_op;
 }
 
-GenericOp new_put(Byte byte){
-    Op_PUT put = {new_byte_argument(byte)};
+GenericOp new_put(Argument arg){
+    Op_PUT put = {arg};
     union Op op;
     op.op_put = put;
     GenericOp gen_op = {OT_PUT, op};
@@ -38,48 +38,48 @@ GenericOp new_is_empty(){
     return gen_op;
 }
 
-GenericOp new_and(Byte b1, Byte b2){
-    Op_AND and = {new_byte_argument(b1), new_byte_argument(b2)};
+GenericOp new_and(Argument arg1, Argument arg2){
+    Op_AND and = {arg1, arg2};
     union Op op;
     op.op_and = and;
     GenericOp gen_op = {OT_AND, op};
     return gen_op;
 }
 
-GenericOp new_or(Byte b1, Byte b2){
-    Op_OR or = {new_byte_argument(b1), new_byte_argument(b2)};
+GenericOp new_or(Argument arg1, Argument arg2){
+    Op_OR or = {arg1, arg2};
     union Op op;
     op.op_or = or;
     GenericOp gen_op = {OT_OR, op};
     return gen_op;
 }
 
-GenericOp new_xor(Byte b1, Byte b2){
-    Op_XOR xor = {new_byte_argument(b1), new_byte_argument(b2)};
+GenericOp new_xor(Argument arg1, Argument arg2){
+    Op_XOR xor = {arg1, arg2};
     union Op op;
     op.op_xor = xor;
     GenericOp gen_op = {OT_XOR, op};
     return gen_op;
 }
 
-GenericOp new_not(Byte byte){
-    Op_NOT not = {new_byte_argument(byte)};
+GenericOp new_not(Argument arg){
+    Op_NOT not = {arg};
     union Op op;
     op.op_not = not;
     GenericOp gen_op = {OT_NOT, op};
     return gen_op;
 }
 
-GenericOp new_eq(Byte b1, Byte b2){
-    Op_EQ eq = {new_byte_argument(b1), new_byte_argument(b2)};
+GenericOp new_eq(Argument arg1, Argument arg2){
+    Op_EQ eq = {arg1, arg2};
     union Op op;
     op.op_eq = eq;
     GenericOp gen_op = {OT_EQ, op};
     return gen_op;
 }
 
-GenericOp new_neq(Byte b1, Byte b2){
-    Op_NEQ neq = {new_byte_argument(b1), new_byte_argument(b2)};
+GenericOp new_neq(Argument arg1, Argument arg2){
+    Op_NEQ neq = {arg1, arg2};
     union Op op;
     op.op_neq = neq;
     GenericOp gen_op = {OT_NEQ, op};
@@ -102,11 +102,43 @@ GenericOp new_exec(Argument arg){
     return gen_op;
 }
 
+GenericOp new_stack(Argument arg1, Argument arg2){
+    Op_STACK stack = {arg1, arg2};
+    union Op op;
+    op.op_stack = stack;
+    GenericOp gen_op = {OT_STACK, op};
+    return gen_op;
+}
+
 GenericOp new_pow(Argument arg){
     Op_POW pow = {arg};
     union Op op;
     op.op_pow = pow;
     GenericOp gen_op = {OT_POW, op};
+    return gen_op;
+}
+
+GenericOp new_out(Argument arg){
+    Op_OUT out = {arg};
+    union Op op;
+    op.op_out = out;
+    GenericOp gen_op = {OT_OUT, op};
+    return gen_op;
+}
+
+GenericOp new_outnum(Argument arg){
+    Op_OUTNUM outnum = {arg};
+    union Op op;
+    op.op_outnum = outnum;
+    GenericOp gen_op = {OT_OUTNUM, op};
+    return gen_op;
+}
+
+GenericOp new_outchar(Argument arg){
+    Op_OUTCHAR outchar = {arg};
+    union Op op;
+    op.op_outchar = outchar;
+    GenericOp gen_op = {OT_OUTCHAR, op};
     return gen_op;
 }
 

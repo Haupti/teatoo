@@ -18,6 +18,7 @@ typedef enum {
     OT_PEEK,
     OT_RETURN,
     OT_EXEC,
+    OT_STACK,
     OT_OUT,
     OT_OUTCHAR,
     OT_OUTNUM,
@@ -59,6 +60,11 @@ typedef struct Op_XOR {
     struct Argument first;
     struct Argument second;
 } Op_XOR;
+
+typedef struct Op_STACK {
+    struct Argument first;
+    struct Argument second;
+} Op_STACK;
 
 typedef struct Op_NOT {
     struct Argument first;
@@ -115,6 +121,7 @@ union Op {
    struct Op_PEEK op_peek;
    struct Op_RETURN op_return;
    struct Op_EXEC op_exec;
+   struct Op_STACK op_stack;
    struct Op_OUT op_out;
    struct Op_OUTCHAR op_outchar;
    struct Op_OUTNUM op_outnum;
@@ -136,18 +143,22 @@ typedef struct Statements {
 Statements new_statements(GenericOp * statements, size_t len);
 GenericOp new_peek();
 GenericOp new_is_empty();
-GenericOp new_put(Byte byte);
+GenericOp new_put(Argument arg);
 GenericOp new_take();
-GenericOp new_and(Byte b1, Byte b2);
-GenericOp new_or(Byte b1, Byte b2);
-GenericOp new_xor(Byte b1, Byte b2);
-GenericOp new_not(Byte b1);
-GenericOp new_eq(Byte b1, Byte b2);
-GenericOp new_neq(Byte b1, Byte b2);
+GenericOp new_and(Argument arg1, Argument arg2);
+GenericOp new_or(Argument arg1, Argument arg2);
+GenericOp new_xor(Argument arg1, Argument arg2);
+GenericOp new_not(Argument arg);
+GenericOp new_eq(Argument arg1, Argument arg2);
+GenericOp new_neq(Argument arg1, Argument arg2);
 GenericOp new_return(Argument arg);
 GenericOp new_exec(Argument arg);
+GenericOp new_stack(Argument arg1, Argument arg2);
 GenericOp new_pow(Argument arg);
 GenericOp new_is_null(Argument arg);
+GenericOp new_out(Argument arg);
+GenericOp new_outchar(Argument arg);
+GenericOp new_outnum(Argument arg);
 GenericOp new_if(Argument condition, Argument operation);
 
 #endif

@@ -11,7 +11,7 @@ MODULAR_DESCRIBE(exec_scope_tests, {
     Statements statements = ARRAY(NULL, 0);
 
     TEST("executes scope, copies it and thus does not modifie the original one", {
-        GenericOp ops[] = ARRAY(new_put(1), new_return(new_byte_argument(2)));
+        GenericOp ops[] = ARRAY(new_put(new_byte_argument(1)), new_return(new_byte_argument(2)));
         Statements statements = new_statements(ops, LEN(ops));
 
         Scope scope = new_scope("steve", statements);
@@ -32,7 +32,7 @@ MODULAR_DESCRIBE(exec_scope_tests, {
     })
 
     TEST("executes scope, modifies it (persistent)", {
-        GenericOp ops[] = ARRAY(new_put(1), new_return(new_byte_argument(2)));
+        GenericOp ops[] = ARRAY(new_put(new_byte_argument(1)), new_return(new_byte_argument(2)));
         Statements statements = new_statements(ops, LEN(ops));
 
         Scope scope = new_scope("steve", statements);

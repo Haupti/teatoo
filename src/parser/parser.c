@@ -139,141 +139,76 @@ GenericOp parse_op(TokenSlice slice){
     switch(slice.arr[slice.start].type){
         case EQ:{
             ArgumentPair pair = collect_two_arguments(arguments_slice);
-
-            Op_EQ op_eq = {pair.first, pair.second};
-            union Op op;
-            op.op_eq = op_eq;
-            GenericOp gen_op = {OT_EQ, op};
-            return gen_op;
+            return new_eq(pair.first, pair.second);
         }
         case NEQ:{
             ArgumentPair pair = collect_two_arguments(arguments_slice);
-
-            Op_NEQ op_neq = {pair.first, pair.second};
-            union Op op;
-            op.op_neq = op_neq;
-            GenericOp gen_op = {OT_NEQ, op};
-            return gen_op;
+            return new_neq(pair.first, pair.second);
         }
         case AND:{
             ArgumentPair pair = collect_two_arguments(arguments_slice);
-
-            Op_AND op_and = {pair.first, pair.second};
-            union Op op;
-            op.op_and = op_and;
-            GenericOp gen_op = {OT_AND, op};
-            return gen_op;
+            return new_and(pair.first, pair.second);
         }
         case OR:{
             ArgumentPair pair = collect_two_arguments(arguments_slice);
-
-            Op_OR op_or = {pair.first, pair.second};
-            union Op op;
-            op.op_or = op_or;
-            GenericOp gen_op = {OT_OR, op};
-            return gen_op;
+            return new_or(pair.first, pair.second);
         }
         case XOR:{
             ArgumentPair pair = collect_two_arguments(arguments_slice);
-
-            Op_XOR op_xor = {pair.first, pair.second};
-            union Op op;
-            op.op_xor = op_xor;
-            GenericOp gen_op = {OT_XOR, op};
-            return gen_op;
+            return new_xor(pair.first, pair.second);
         }
         case IF:{
             ArgumentPair pair = collect_two_arguments(arguments_slice);
-
-            Op_IF op_if = {pair.first, pair.second};
-            union Op op;
-            op.op_if = op_if;
-            GenericOp gen_op = {OT_IF, op};
-            return gen_op;
+            return new_if(pair.first, pair.second);
+        }
+        case STACK:{
+            ArgumentPair args = collect_two_arguments(arguments_slice);
+            return new_stack(args.first, args.second);
         }
         case NOT:{
-            Op_NOT op_not = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_not = op_not;
-            GenericOp gen_op = {OT_NOT, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_not(arg);
         }
         case RETURN:{
-            Op_RETURN op_return = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_return = op_return;
-            GenericOp gen_op = {OT_RETURN, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_return(arg);
         }
         case EXEC:{
-            Op_EXEC op_exec = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_exec = op_exec;
-            GenericOp gen_op = {OT_EXEC, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_exec(arg);
         }
         case PUT:{
-            Op_PUT op_put = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_put = op_put;
-            GenericOp gen_op = {OT_PUT, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_put(arg);
         }
         case POW:{
-            Op_POW op_pow = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_pow = op_pow;
-            GenericOp gen_op = {OT_POW, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_pow(arg);
         }
         case IS_NULL:{
-            Op_IS_NULL op_is_null = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_is_null = op_is_null;
-            GenericOp gen_op = {OT_IS_NULL, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_is_null(arg);
         }
         case OUT:{
-            Op_OUT op_out = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_out = op_out;
-            GenericOp gen_op = {OT_OUT, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_out(arg);
         }
         case OUTCHAR:{
-            Op_OUTCHAR op_outchar = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_outchar = op_outchar;
-            GenericOp gen_op = {OT_OUTCHAR, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_outchar(arg);
         }
         case OUTNUM:{
-            Op_OUTNUM op_outnum = {collect_one_argument(arguments_slice)};
-            union Op op;
-            op.op_outnum = op_outnum;
-            GenericOp gen_op = {OT_OUTNUM, op};
-            return gen_op;
+            Argument arg = collect_one_argument(arguments_slice);
+            return new_outnum(arg);
         }
         case TAKE:{
-            Op_TAKE op_take = {};
-            union Op op;
-            op.op_take = op_take;
-            GenericOp gen_op = {OT_TAKE, op};
-            return gen_op;
+            return new_take();
         }
         case PEEK:{
-            Op_PEEK op_peek = {};
-            union Op op;
-            op.op_peek = op_peek;
-            GenericOp gen_op = {OT_PEEK, op};
-            return gen_op;
+            return new_peek();
         }
         case IS_EMPTY:{
-            Op_IS_EMPTY op_is_empty = {};
-            union Op op;
-            op.op_is_empty = op_is_empty;
-            GenericOp gen_op = {OT_IS_EMPTY, op};
-            return gen_op;
+            return new_is_empty();
         }
         default:{
             err_unexpected_token(arguments_slice.arr[arguments_slice.start], arguments_slice.start);
