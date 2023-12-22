@@ -8,8 +8,8 @@ void parse_err_at(char * msg, int pos, int line){
     exit(EXIT_FAILURE);
 }
 
-void err_expected_token(Token token_expected, int index){
-    printf("ERROR WHILE PARSING: expected token %s in line %d at %d\n", TKN_STR(token_expected), token_expected.line_nr, index);
+void err_expected_token(Token token_expected, int index, int line){
+    printf("ERROR WHILE PARSING: expected token %s in line %d at %d\n", TKN_STR(token_expected), line, index);
     exit(EXIT_FAILURE);
 }
 
