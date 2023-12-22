@@ -314,12 +314,18 @@ Result execute_scope(Module * context, char * scope_name, int is_copy){
     for(int i=0; i<active_scope.statements.statements_len; i++){
         GenericOp op = active_scope.statements.statements[i];
         exec_op(context, &active_scope, op);
-        if(active_scope.is_returned){
-            if(!is_copy){
-                context->scopes.arr[scope_index] = (Scope) {active_scope.name, active_scope.stack, active_scope.statements};
-            }
-            return active_scope.return_result;
-        }
+        if(active_scope.is_returned){ break; }
+    }
+
+    if(!is_copy){
+        context->scopes.arr[scope_index] = (Scope) {active_scope.name, active_scope.stack, active_scope.statements};
+    }
+    else if(is_copy){
+        free(active_scope.stack.arr);
+    }
+
+    if(active_scope.is_returned){
+        return active_scope.return_result;
     }
     return null_result();
 }
