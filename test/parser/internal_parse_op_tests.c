@@ -8,7 +8,7 @@
 
 MODULAR_DESCRIBE(internal_parse_op_tests, {
     TEST("parses TAKE", {
-        Token tokens[] = ARRAY(new_token(TAKE), new_token(TERM_NL));
+        Token tokens[] = ARRAY(test_token(TAKE), test_token(TERM_NL));
         TokenSlice slice = new_token_slice(tokens, LEN(tokens));
 
         GenericOp op = parse_op(slice);
@@ -16,7 +16,7 @@ MODULAR_DESCRIBE(internal_parse_op_tests, {
         ASSERT_EQUALS(op.type, OT_TAKE);
     });
     TEST("parses PUT", {
-        Token tokens[] = ARRAY(new_token(PUT), new_token(BYTE_START), new_token(BIT_ON), new_token(BYTE_END), new_token(TERM_NL));
+        Token tokens[] = ARRAY(test_token(PUT), test_token(BYTE_START), test_token(BIT_ON), test_token(BYTE_END), test_token(TERM_NL));
         TokenSlice slice = new_token_slice(tokens, LEN(tokens));
 
         GenericOp op = parse_op(slice);
@@ -26,7 +26,7 @@ MODULAR_DESCRIBE(internal_parse_op_tests, {
         ASSERT_INT_EQUALS(op.op.op_put.first.byte, 0xFF);
     });
     TEST("parses IF", {
-        Token tokens[] = ARRAY(new_token(IF), new_token(BYTE_START), new_token(BIT_ON), new_token(BYTE_END), new_token(GRP_OPEN), new_token(TAKE), new_token(GRP_CLOSE), new_token(TERM_NL));
+        Token tokens[] = ARRAY(test_token(IF), test_token(BYTE_START), test_token(BIT_ON), test_token(BYTE_END), test_token(GRP_OPEN), test_token(TAKE), test_token(GRP_CLOSE), test_token(TERM_NL));
         TokenSlice slice = new_token_slice(tokens, LEN(tokens));
 
         GenericOp op = parse_op(slice);

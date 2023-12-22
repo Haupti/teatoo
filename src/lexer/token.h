@@ -33,8 +33,10 @@
     x.type == POW ? "POW" :(\
     x.type == IS_EMPTY ? "EMPTY?" :(\
     x.type == IS_NULL ? "NULL?" :(\
+    x.type == STACK ? "STACK" :(\
+    x.type == APPLY ? "APPLY" :(\
     "" \
-)))))))))))))))))))))))))))))))
+)))))))))))))))))))))))))))))))))
 
 typedef enum {
    IF,
@@ -68,15 +70,20 @@ typedef enum {
    POW,
    IS_EMPTY,
    IS_NULL,
+   STACK,
+   APPLY,
 } TokenType;
 
 typedef struct {
     TokenType type;
+    int line_nr;
     char * name;
 } Token;
 
-Token new_token(TokenType type);
-Token new_identifier_token(char * name);
+Token new_token(TokenType type, int line_nr);
+Token test_token(TokenType type);
+Token new_identifier_token(char * name, int line_nr);
+Token test_identifier_token(char * name);
 void destroy_token(Token token);
 
 

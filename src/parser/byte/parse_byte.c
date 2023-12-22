@@ -5,7 +5,8 @@
 
 Byte parse_byte(TokenSlice slice){
     if(slice.arr[slice.start].type != BYTE_START){
-        err_expected_token(new_token(BYTE_START), slice.start);
+        int line = slice.arr[slice.start].line_nr;
+        err_expected_token(new_token(BYTE_START, 0), slice.start, line);
     }
 
     if(slice.arr[slice.start+2].type == BYTE_END){

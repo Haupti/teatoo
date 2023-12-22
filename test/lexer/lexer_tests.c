@@ -10,32 +10,38 @@ MODULAR_DESCRIBE(lexer_tests, {
     TEST("reads scope definition", {
         char prog[] = "a:{}";
         TokenVector vec = create_tokens(prog, strlen(prog));
-        Token expected[4] = ARRAY(new_identifier_token("a"), new_token(DEFINE), new_token(SCOPE_OPEN), new_token(SCOPE_CLOSE));
+        Token expected[4] = ARRAY(test_identifier_token("a"), test_token(DEFINE), test_token(SCOPE_OPEN), test_token(SCOPE_CLOSE));
         ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
     });
     TEST("reads complex scope", {
         char prog[] = "a:{TAKE;PUT [0]\nRETURN TAKE}\nb:$a\nEXEC b";
         TokenVector vec = create_tokens(prog, strlen(prog));
-        Token expected[21] = ARRAY(new_identifier_token("a"), new_token(DEFINE), new_token(SCOPE_OPEN),new_token(TAKE), new_token(TERM_SEM), new_token(PUT),new_token(BYTE_START),
-                                  new_token(BIT_OFF),new_token(BYTE_END), new_token(TERM_NL),new_token(RETURN),new_token(TAKE), new_token(SCOPE_CLOSE),
-                                  new_token(TERM_NL), new_identifier_token("b"),new_token(DEFINE),new_token(COPY), new_identifier_token("a"),new_token(TERM_NL),new_token(EXEC),
-                                  new_identifier_token("b"));
+        Token expected[21] = ARRAY(test_identifier_token("a"), test_token(DEFINE), test_token(SCOPE_OPEN),test_token(TAKE), test_token(TERM_SEM), test_token(PUT),test_token(BYTE_START),
+                                  test_token(BIT_OFF),test_token(BYTE_END), test_token(TERM_NL),test_token(RETURN),test_token(TAKE), test_token(SCOPE_CLOSE),
+                                  test_token(TERM_NL), test_identifier_token("b"),test_token(DEFINE),test_token(COPY), test_identifier_token("a"),test_token(TERM_NL),test_token(EXEC),
+                                  test_identifier_token("b"));
         ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
     });
     TEST("reads various keywords", {
         char prog[] = "a:{}[10];\nPUT TAKE RETURN EQ NEQ IF EXEC $ XOR | & !! OUT OUTCHAR OUTNUM PEEK ()";
         TokenVector vec = create_tokens(prog, strlen(prog));
-        Token expected[29] = ARRAY(new_identifier_token("a"), new_token(DEFINE), new_token(SCOPE_OPEN), new_token(SCOPE_CLOSE),
-                                   new_token(BYTE_START), new_token(BIT_ON), new_token(BIT_OFF),new_token(BYTE_END),
-                                   new_token(TERM_SEM),new_token(TERM_NL), new_token(PUT),new_token(TAKE),new_token(RETURN),
-                                   new_token(EQ), new_token(NEQ),new_token(IF),new_token(EXEC), new_token(COPY),new_token(XOR),new_token(OR),
-                                   new_token(AND), new_token(NOT), new_token(NOT), new_token(OUT), new_token(OUTCHAR), new_token(OUTNUM), new_token(PEEK), new_token(GRP_OPEN), new_token(GRP_CLOSE));
+        Token expected[29] = ARRAY(test_identifier_token("a"), test_token(DEFINE), test_token(SCOPE_OPEN), test_token(SCOPE_CLOSE),
+                                   test_token(BYTE_START), test_token(BIT_ON), test_token(BIT_OFF),test_token(BYTE_END),
+                                   test_token(TERM_SEM),test_token(TERM_NL), test_token(PUT),test_token(TAKE),test_token(RETURN),
+                                   test_token(EQ), test_token(NEQ),test_token(IF),test_token(EXEC), test_token(COPY),test_token(XOR),test_token(OR),
+                                   test_token(AND), test_token(NOT), test_token(NOT), test_token(OUT), test_token(OUTCHAR), test_token(OUTNUM), test_token(PEEK), test_token(GRP_OPEN), test_token(GRP_CLOSE));
         ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
     })
-    TEST("reads new keywords", {
+    TEST("reads new keywords: EMPTY? NULL? POW", {
         char prog[] = "EMPTY? NULL? POW";
         TokenVector vec = create_tokens(prog, strlen(prog));
-        Token expected[] = ARRAY(new_token(IS_EMPTY), new_token(IS_NULL), new_token(POW));
+        Token expected[] = ARRAY(test_token(IS_EMPTY), test_token(IS_NULL), test_token(POW));
+        ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
+    })
+    TEST("reads new keywords: STACK APPLY", {
+        char prog[] = "STACK APPLY";
+        TokenVector vec = create_tokens(prog, strlen(prog));
+        Token expected[] = ARRAY(test_token(STACK), test_token(APPLY));
         ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
     })
     TEST("empty program has no tokens", {

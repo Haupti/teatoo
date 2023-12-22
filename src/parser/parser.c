@@ -13,6 +13,7 @@
 #include "find/find.h"
 #include "verify/verifyer.h"
 
+
 GenericOp parse_op(TokenSlice slice);
 
 Statements parse_section_ended_by(TokenSlice slice, TokenType ending_token) {
@@ -57,7 +58,7 @@ Statements parse_section_ended_by(TokenSlice slice, TokenType ending_token) {
 
 Scope parse_scope(char * name, TokenSlice slice){
     if(slice.arr[slice.start].type != SCOPE_OPEN){
-        err_at("expected scope definition start, cannot parse scope from here", slice.start);
+        err_at("expected scope definition start, cannot parse scope from here", slice.start, head_slice(slice).line_nr);
     }
 
     if(slice.arr[slice.start + 1].type == SCOPE_CLOSE){
@@ -75,10 +76,10 @@ Scope parse_scope(char * name, TokenSlice slice){
 
 Sequence parse_sequence_arg(TokenSlice slice){
     if(slice.arr[slice.start].type != GRP_OPEN){
-        err_at("cannot parse sequence if not at sequence start", slice.start);
+        err_at("cannot parse sequence if not at sequence start", slice.start, head_slice(slice).line_nr);
     }
     if(slice.arr[slice.start + 1].type == GRP_CLOSE){
-        err_at("unexpected token, byte or seqeuence cannot be empty", slice.start);
+        err_at("unexpected token, byte or seqeuence cannot be empty", slice.start, head_slice(slice).line_nr);
     }
 
     Statements statements = parse_section_ended_by(slice, GRP_CLOSE);
@@ -102,7 +103,7 @@ Argument collect_one_argument(TokenSlice slice){
     }
     else if(slice.arr[slice.start].type == COPY){
         if(slice.end <= slice.start){
-            err_at("expected an scope identifier here", slice.start);
+            err_at("expected an scope identifier here", slice.start, head_slice(slice).line_nr);
         }
         return new_scope_copy_ref_argument(slice.arr[slice.start+1].name);
     }
@@ -113,7 +114,7 @@ Argument collect_one_argument(TokenSlice slice){
         return new_scope_copy_ref_argument(slice.arr[slice.start+1].name);
     }
     else {
-        err_at("an argument cannot start with this token. I expected '(' or a byte definition", slice.start);
+        err_at("an argument cannot start with this token. I expected '(' or a byte definition", slice.start, head_slice(slice).line_nr);
         return (Argument) {};
     }
 }
@@ -304,10 +305,10 @@ Module create_parse_module(TokenVector vec){
         current = vec.arr[i];
         if(current.type == IDENTIFIER){
             if(get_token(vec, i+1).type != DEFINE){
-                err_expected_token(new_token(DEFINE), i+1);
+                err_expected_token(new_token(DEFINE, 0), i+1, current.line_nr);
             }
             if(get_token(vec, i+2).type != SCOPE_OPEN){
-                err_expected_token(new_token(SCOPE_OPEN), i+2);
+                err_expected_token(new_token(SCOPE_OPEN, 0), i+2, current.line_nr);
             }
             TokenSlice slice = {vec.arr, i+2, vec.len-1};
             int scope_end = find_scope_end(slice);
@@ -331,7 +332,7 @@ Module create_parse_module(TokenVector vec){
             continue;
         }
         else {
-            err_at("on module level only entrypoint (EXEC) and scope definitions are allowed", i);
+            err_at("on module level only entrypoint (EXEC) and scope definitions are allowed", i, current.line_nr);
         }
     }
 

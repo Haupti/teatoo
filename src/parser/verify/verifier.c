@@ -35,17 +35,17 @@ int has_only_one_argument(TokenSlice slice){
 
 void verify_has_only_one_argument(TokenSlice slice){
     if (has_only_one_argument(slice) == 0){
-        err_at("expected only one argument, but found no end of the argument", slice.start);
+        err_at("expected only one argument, but found no end of the argument", slice.start, slice.arr[slice.start].line_nr);
     }
     else if(has_only_one_argument(slice) == -1){
-        err_at("while verifying argument count", slice.start);
+        err_at("while verifying argument count", slice.start, slice.arr[slice.start].line_nr);
     }
 }
 
 int has_only_two_arguments(TokenSlice slice){
     int arg1_end = find_argument_end(slice);
     if(arg1_end == -1){
-        err_at("could not find end of the first argument (incorrect starting point)", slice.start);
+        err_at("could not find end of the first argument (incorrect starting point)", slice.start, slice.arr[slice.start].line_nr);
     }
 
     TokenSlice first_slice = {slice.arr, slice.start, arg1_end};
@@ -66,9 +66,9 @@ void verify_has_only_two_arguments(TokenSlice slice){
     int two_arg_result = has_only_two_arguments(slice);
 
     if(two_arg_result == -1){
-        err_at("while verifying argument count", slice.start);
+        err_at("while verifying argument count", slice.start, slice.arr[slice.start].line_nr);
     }
     else if(two_arg_result == 0){
-        err_at("expected two arguments, but the count does not match", slice.start);
+        err_at("expected two arguments, but the count does not match", slice.start, slice.arr[slice.start].line_nr);
     }
 }

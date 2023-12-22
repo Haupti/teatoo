@@ -8,7 +8,7 @@
 
 MODULAR_DESCRIBE(internal_parse_scope_tests, {
     TEST("parses empty scope", {
-        Token tokens[] = ARRAY(new_token(SCOPE_OPEN), new_token(SCOPE_CLOSE));
+        Token tokens[] = ARRAY(test_token(SCOPE_OPEN), test_token(SCOPE_CLOSE));
         TokenSlice slice = new_token_slice(tokens, LEN(tokens));
 
         Scope scope = parse_scope("steve", slice);
@@ -19,7 +19,7 @@ MODULAR_DESCRIBE(internal_parse_scope_tests, {
         ASSERT_EQUALS(scope.statements.statements, NULL);
     });
     TEST("parses scope with only one statement", {
-        Token tokens[] = ARRAY(new_token(SCOPE_OPEN), new_token(TAKE), new_token(SCOPE_CLOSE));
+        Token tokens[] = ARRAY(test_token(SCOPE_OPEN), test_token(TAKE), test_token(SCOPE_CLOSE));
         TokenSlice slice = new_token_slice(tokens, LEN(tokens));
 
         Scope scope = parse_scope("steve", slice);
@@ -30,7 +30,7 @@ MODULAR_DESCRIBE(internal_parse_scope_tests, {
         ASSERT_EQUALS(scope.statements.statements[0].type, OT_TAKE);
     });
     TEST("parses scope with two statements and if", {
-        Token tokens[] = ARRAY(new_token(SCOPE_OPEN), new_token(IF), new_token(BYTE_START), new_token(BIT_ON), new_token(BYTE_END), new_token(GRP_OPEN) ,new_token(TAKE), new_token(GRP_CLOSE), new_token(TERM_NL), new_token(RETURN), new_token(GRP_OPEN), new_token(TAKE), new_token(GRP_CLOSE),new_token(SCOPE_CLOSE));
+        Token tokens[] = ARRAY(test_token(SCOPE_OPEN), test_token(IF), test_token(BYTE_START), test_token(BIT_ON), test_token(BYTE_END), test_token(GRP_OPEN) ,test_token(TAKE), test_token(GRP_CLOSE), test_token(TERM_NL), test_token(RETURN), test_token(GRP_OPEN), test_token(TAKE), test_token(GRP_CLOSE),test_token(SCOPE_CLOSE));
         TokenSlice slice = new_token_slice(tokens, LEN(tokens));
 
         Scope scope = parse_scope("steve", slice);

@@ -21,17 +21,17 @@ int find_matching_sequence_end(TokenSlice slice){
                 return i;
             }
         }
-        err_at("could not find matching sequence closing starting here", slice.start);
+        err_at("could not find matching sequence closing starting here", slice.start, head_slice(slice).line_nr);
         return -1;
     }
-    err_at("not at sequence start, cannot search for end", slice.start);
+    err_at("not at sequence start, cannot search for end", slice.start, head_slice(slice).line_nr);
     return -1;
 }
 
 int find_byte_end(TokenSlice slice){
     int start = slice.start;
     if(slice.arr[start].type != BYTE_START){
-        err_at("not at byte start", start);
+        err_at("not at byte start", start, head_slice(slice).line_nr);
     }
     Token current;
     for(int i = slice.start; i <= slice.end; i++){
@@ -40,7 +40,7 @@ int find_byte_end(TokenSlice slice){
             return i;
         }
     }
-    err_at("expected an end of the byte starting here", slice.start);
+    err_at("expected an end of the byte starting here", slice.start, head_slice(slice).line_nr);
     return -1;
 }
 
@@ -63,10 +63,10 @@ int find_scope_end(TokenSlice slice){
                 return i;
             }
         }
-        err_at("could not find matching sequence closing starting here", slice.start);
+        err_at("could not find matching sequence closing starting here", slice.start, head_slice(slice).line_nr);
         return -1;
     }
-    err_at("not at scope start, cannot search for end", slice.start);
+    err_at("not at scope start, cannot search for end", slice.start, head_slice(slice).line_nr);
     return -1;
 }
 
@@ -88,7 +88,7 @@ int find_statement_end(TokenSlice slice){
             sequence_counter -= 1;
         }
     }
-    parse_err_at("statement did not end before end of current slice", slice.start);
+    parse_err_at("statement did not end before end of current slice", slice.start, head_slice(slice).line_nr);
     return -1;
 }
 
@@ -100,7 +100,7 @@ int find_scope_ref_end(TokenSlice slice){
     if(start_type == IDENTIFIER){
         return slice.start;
     }
-    parse_err_at("not at an identifier ref, therefor I cannot find the end", slice.start);
+    parse_err_at("not at an identifier ref, therefor I cannot find the end", slice.start, head_slice(slice).line_nr);
     return -1;
 }
 

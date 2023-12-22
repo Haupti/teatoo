@@ -11,5 +11,5 @@ typedef struct {
 } TokenSlice;
 
 TokenSlice new_token_slice(Token * tokens, size_t len);
-
+Token head_slice(TokenSlice slice);
 #endif

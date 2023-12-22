@@ -20,10 +20,12 @@ TokenVector create_tokens(char * prog, int len){
     int tokens_index = 0;
 
     char word[50];
+    memset(word, '\0', sizeof(word));
     int word_index = 0;
 
     ReadMode mode = SYMBOL;
 
+    int line_counter = 0;
 
     int i;
     for(i = 0; i <= len; i++){
@@ -43,15 +45,20 @@ TokenVector create_tokens(char * prog, int len){
         // read section
         if(mode == COMMENT && c=='\n'){
             mode = SYMBOL;
-            tokens[tokens_index] = new_token(TERM_NL);
+            tokens[tokens_index] = new_token(TERM_NL, line_counter);
             tokens_index += 1;
+            line_counter += 1;
             continue;
         }
-        else if(mode == MULTI_LINE_COMMENT && c == ']'){
-            if((i+1 < len) && prog[i+1] == '-') {
-                mode = SYMBOL;
-                tokens[tokens_index] = new_token(TERM_NL);
+        else if(mode == MULTI_LINE_COMMENT){
+            if(c == '\n'){
+                tokens[tokens_index] = new_token(TERM_NL, line_counter);
                 tokens_index += 1;
+                line_counter += 1;
+
+            }
+            else if(c == ']' && (i+1 < len) && prog[i+1] == '-') {
+                mode = SYMBOL;
                 continue;
             }
         }
@@ -63,70 +70,78 @@ TokenVector create_tokens(char * prog, int len){
             }
             else { // word is therefor over and we can check what it is
                 if(strcmp(word, "IF") == 0){
-                    tokens[tokens_index] = new_token(IF);
+                    tokens[tokens_index] = new_token(IF, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "POW") == 0){
-                    tokens[tokens_index] = new_token(POW);
+                    tokens[tokens_index] = new_token(POW, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "EMPTY?") == 0){
-                    tokens[tokens_index] = new_token(IS_EMPTY);
+                    tokens[tokens_index] = new_token(IS_EMPTY, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "NULL?") == 0){
-                    tokens[tokens_index] = new_token(IS_NULL);
+                    tokens[tokens_index] = new_token(IS_NULL, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "EQ") == 0){
-                    tokens[tokens_index] = new_token(EQ);
+                    tokens[tokens_index] = new_token(EQ, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "NEQ") == 0){
-                    tokens[tokens_index] = new_token(NEQ);
+                    tokens[tokens_index] = new_token(NEQ, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "TAKE") == 0){
-                    tokens[tokens_index] = new_token(TAKE);
+                    tokens[tokens_index] = new_token(TAKE, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "PUT") == 0){
-                    tokens[tokens_index] = new_token(PUT);
+                    tokens[tokens_index] = new_token(PUT, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "PEEK") == 0){
-                    tokens[tokens_index] = new_token(PEEK);
+                    tokens[tokens_index] = new_token(PEEK, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "XOR") == 0){
-                    tokens[tokens_index] = new_token(XOR);
+                    tokens[tokens_index] = new_token(XOR, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "RETURN") == 0){
-                    tokens[tokens_index] = new_token(RETURN);
+                    tokens[tokens_index] = new_token(RETURN, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "EXEC") == 0){
-                    tokens[tokens_index] = new_token(EXEC);
+                    tokens[tokens_index] = new_token(EXEC, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "OUTNUM") == 0){
-                    tokens[tokens_index] = new_token(OUTNUM);
+                    tokens[tokens_index] = new_token(OUTNUM, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "OUTCHAR") == 0){
-                    tokens[tokens_index] = new_token(OUTCHAR);
+                    tokens[tokens_index] = new_token(OUTCHAR, line_counter);
                     tokens_index += 1;
                 }
                 else if(strcmp(word, "OUT") == 0){
-                    tokens[tokens_index] = new_token(OUT);
+                    tokens[tokens_index] = new_token(OUT, line_counter);
+                    tokens_index += 1;
+                }
+                else if(strcmp(word, "STACK") == 0){
+                    tokens[tokens_index] = new_token(STACK, line_counter);
+                    tokens_index += 1;
+                }
+                else if(strcmp(word, "APPLY") == 0){
+                    tokens[tokens_index] = new_token(APPLY, line_counter);
                     tokens_index += 1;
                 }
                 else { // must be an identifier then
                     char current_word[word_index+2];
                     memcpy(current_word, word, word_index+1);
                     current_word[word_index+1] = '\0';
-                    tokens[tokens_index] = new_identifier_token(current_word);
+                    tokens[tokens_index] = new_identifier_token(current_word, line_counter);
                     tokens_index += 1;
                 }
                 memset(word, '\0', sizeof(word));
@@ -142,77 +157,78 @@ TokenVector create_tokens(char * prog, int len){
         if(mode == SYMBOL){
             switch(c){
                 case '{':{
-                    tokens[tokens_index] = new_token(SCOPE_OPEN);
+                    tokens[tokens_index] = new_token(SCOPE_OPEN, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '}':{
-                    tokens[tokens_index] = new_token(SCOPE_CLOSE);
+                    tokens[tokens_index] = new_token(SCOPE_CLOSE, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '(':{
-                    tokens[tokens_index] = new_token(GRP_OPEN);
+                    tokens[tokens_index] = new_token(GRP_OPEN, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case ')':{
-                    tokens[tokens_index] = new_token(GRP_CLOSE);
+                    tokens[tokens_index] = new_token(GRP_CLOSE, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case ':':{
-                    tokens[tokens_index] = new_token(DEFINE);
+                    tokens[tokens_index] = new_token(DEFINE, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '\n':{
-                    tokens[tokens_index] = new_token(TERM_NL);
+                    tokens[tokens_index] = new_token(TERM_NL, line_counter);
                     tokens_index += 1;
+                    line_counter += 1;
                     break;
                 }
                 case ';':{
-                    tokens[tokens_index] = new_token(TERM_SEM);
+                    tokens[tokens_index] = new_token(TERM_SEM, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '[':{
-                    tokens[tokens_index] = new_token(BYTE_START);
+                    tokens[tokens_index] = new_token(BYTE_START, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case ']':{
-                    tokens[tokens_index] = new_token(BYTE_END);
+                    tokens[tokens_index] = new_token(BYTE_END, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '$':{
-                    tokens[tokens_index] = new_token(COPY);
+                    tokens[tokens_index] = new_token(COPY, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '1':{
-                    tokens[tokens_index] = new_token(BIT_ON);
+                    tokens[tokens_index] = new_token(BIT_ON, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '0':{
-                    tokens[tokens_index] = new_token(BIT_OFF);
+                    tokens[tokens_index] = new_token(BIT_OFF, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '!':{
-                    tokens[tokens_index] = new_token(NOT);
+                    tokens[tokens_index] = new_token(NOT, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '&':{
-                    tokens[tokens_index] = new_token(AND);
+                    tokens[tokens_index] = new_token(AND, line_counter);
                     tokens_index += 1;
                     break;
                 }
                 case '|':{
-                    tokens[tokens_index] = new_token(OR);
+                    tokens[tokens_index] = new_token(OR, line_counter);
                     tokens_index += 1;
                     break;
                 }
@@ -226,7 +242,7 @@ TokenVector create_tokens(char * prog, int len){
                         word_index = 1;
                         break;
                     }
-                    lex_err("while parsing: unexpected character", c, i);
+                    lex_err("while parsing: unexpected character", c, i, line_counter);
                 }
             }
         }
