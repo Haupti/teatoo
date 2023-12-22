@@ -25,7 +25,7 @@ TokenVector create_tokens(char * prog, int len){
 
     ReadMode mode = SYMBOL;
 
-    int line_counter = 0;
+    int line_counter = 1;
 
     int i;
     for(i = 0; i <= len; i++){
