@@ -17,8 +17,7 @@ mem:{
 }
 
 run_hello_world:{
-    OUTCHAR (EXEC (STACK $mem [01101000]))
-    OUTCHAR (EXEC mem)
+    EXEC mem
     OUTCHAR (EXEC mem)
     OUTCHAR (EXEC mem)
     OUTCHAR (EXEC mem)
@@ -32,10 +31,4 @@ run_hello_world:{
     OUTCHAR (EXEC mem)
 }
 
-run_hello_world_twice:{
-    EXEC $run_hello_world;
-    OUTCHAR [00001010];
-    EXEC $run_hello_world;
-}
-
-EXEC $run_hello_world_twice;
+EXEC $run_hello_world;
