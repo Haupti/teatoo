@@ -182,3 +182,9 @@ takes no argument, checks if the given stack is empty (has no values) returns 25
 
 #### NULL?
 takes one byte argument and checks if it is the special 'NULL' result. returns 255 if so, 0 otherwise
+
+
+## Future plans
+* 'REVERSE' - reverses the stack of the scope its executed in
+* IO - some form of IO. either read file or read input or both. also the option to write to file.
+* more than one module allowed 'module references' or otherwise maybe known as 'import' or something.
