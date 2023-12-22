@@ -4,12 +4,14 @@
 #include "interpreter/interpreter.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
+#include "lexer/token_vector.h"
 #include "parser/parser.h"
 
 
 
 char tt(char * program){
     TokenVector tokens = create_tokens(program, strlen(program));
+    print_tknvec(tokens);
     Module module = create_parse_module(tokens);
     free(tokens.arr);
     tokens.arr = NULL;

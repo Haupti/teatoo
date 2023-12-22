@@ -33,7 +33,7 @@ MODULAR_DESCRIBE(lexer_tests, {
         ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
     })
     TEST("reads new keywords", {
-        char prog[] = "EMTPY? NULL? POW";
+        char prog[] = "EMPTY? NULL? POW";
         TokenVector vec = create_tokens(prog, strlen(prog));
         Token expected[] = ARRAY(new_token(IS_EMPTY), new_token(IS_NULL), new_token(POW));
         ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));

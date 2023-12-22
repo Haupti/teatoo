@@ -29,14 +29,29 @@ TokenVector create_tokens(char * prog, int len){
     for(i = 0; i <= len; i++){
         char c = prog[i];
 
+        if(c == '-' && i+1 < len){
+            if(prog[i+1] == '-'){
+                mode = COMMENT;
+                continue;
+            }
+            if(prog[i+1] == '['){
+                mode = MULTI_LINE_COMMENT;
+                continue;
+            }
+        }
+
         // read section
         if(mode == COMMENT && c=='\n'){
             mode = SYMBOL;
+            tokens[tokens_index] = new_token(TERM_NL);
+            tokens_index += 1;
             continue;
         }
         else if(mode == MULTI_LINE_COMMENT && c == ']'){
             if((i+1 < len) && prog[i+1] == '-') {
                 mode = SYMBOL;
+                tokens[tokens_index] = new_token(TERM_NL);
+                tokens_index += 1;
                 continue;
             }
         }
@@ -210,16 +225,6 @@ TokenVector create_tokens(char * prog, int len){
                         word[0] = c;
                         word_index = 1;
                         break;
-                    }
-                    else if(c == '-' && i+1 < len){
-                        if(prog[i+1] == '-'){
-                            mode = COMMENT;
-                            break;
-                        }
-                        if(prog[i+1] == '['){
-                            mode = MULTI_LINE_COMMENT;
-                            break;
-                        }
                     }
                     lex_err("while parsing: unexpected character", c, i);
                 }
