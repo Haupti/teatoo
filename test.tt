@@ -1,5 +1,22 @@
 run:{
-    [00000011]
+    PUT (EQ (MODULO (PEEK) [0000011]) [0000000]);
+    IF (TAKE) (
+        OUTCHAR [01100110]
+        OUTCHAR [01101001]
+        OUTCHAR [01111010]
+        OUTCHAR [01111010]
+        RETURN [0]
+    );
+    PUT (EQ (MODULO (PEEK) [0000101]) [0000000]);
+    IF (TAKE) (
+        OUTCHAR [01100010]
+        OUTCHAR [01110101]
+        OUTCHAR [01111010]
+        OUTCHAR [01111010]
+        RETURN [0]
+    );
+    OUTNUM (TAKE)
+    RETURN [0]
 }
 
-EXEC $run;
+EXEC (STACK $run [00000001]);

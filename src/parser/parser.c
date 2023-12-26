@@ -165,6 +165,26 @@ GenericOp parse_op(TokenSlice slice){
             ArgumentPair args = collect_two_arguments(arguments_slice);
             return new_stack(args.first, args.second);
         }
+        case MULTIPLY:{
+            ArgumentPair args = collect_two_arguments(arguments_slice);
+            return new_multiply(args.first, args.second);
+        }
+        case DIVIDE:{
+            ArgumentPair args = collect_two_arguments(arguments_slice);
+            return new_divide(args.first, args.second);
+        }
+        case MINUS:{
+            ArgumentPair args = collect_two_arguments(arguments_slice);
+            return new_minus(args.first, args.second);
+        }
+        case PLUS:{
+            ArgumentPair args = collect_two_arguments(arguments_slice);
+            return new_plus(args.first, args.second);
+        }
+        case MODULO:{
+            ArgumentPair args = collect_two_arguments(arguments_slice);
+            return new_modulo(args.first, args.second);
+        }
         case NOT:{
             Argument arg = collect_one_argument(arguments_slice);
             return new_not(arg);

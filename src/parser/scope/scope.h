@@ -25,5 +25,6 @@ typedef struct Scope {
 } Scope;
 
 Scope new_scope(char * name, Statements statements);
+Scope new_scope_copy(char * name, Statements statements, ByteVector stack);
 
 #endif

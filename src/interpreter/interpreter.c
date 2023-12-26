@@ -83,7 +83,6 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
     switch(op.type){
         case OT_PEEK:{
             return get_top_of_stack(context->stack);
-            break;
         }
         case OT_IS_EMPTY:{
             Result res =  get_top_of_stack(context->stack);
@@ -93,7 +92,6 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             else{
                 return byte_result(0);
             }
-            break;
         }
         case OT_TAKE:{
             Result result = get_top_of_stack(context->stack);
@@ -116,8 +114,7 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('AND')", context->name);
             }
-            Result result = byte_result(first.byte & second.byte);
-            return result;
+            return byte_result(first.byte & second.byte);
         }
         case OT_IF:{
             Result condition_result = exec_arg(module, context, op.op.op_if.condition);
@@ -130,7 +127,6 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             else {
                 return null_result();
             }
-            break;
         }
         case OT_EQ:{
             Result first = exec_arg(module, context, op.op.op_eq.first);
@@ -138,14 +134,12 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('EQ')", context->name);
             }
-            Result result;
             if(first.byte == second.byte){
-                result = byte_result(0xFF);
+                return byte_result(0xFF);
             }
             else {
-                result = byte_result(0x0);
+                return byte_result(0x0);
             }
-            return result;
         }
         case OT_NEQ:{
             Result first = exec_arg(module, context, op.op.op_neq.first);
@@ -153,14 +147,67 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
             if(first.is_null || second.is_null){
                 interpreter_err_in("NULL ARGUMENT ERROR ('NEQ')", context->name);
             }
-            Result result;
             if(first.byte == second.byte){
-                result = byte_result(0x0);
+                return byte_result(0x0);
             }
             else {
-                result = byte_result(0xFF);
+                return byte_result(0xFF);
             }
-            return result;
+        }
+        case OT_MODULO:{
+            Result first = exec_arg(module, context, op.op.op_neq.first);
+            Result second = exec_arg(module, context, op.op.op_neq.second);
+            if(first.is_null || second.is_null){
+                interpreter_err_in("NULL ARGUMENT ERROR ('MODULO')", context->name);
+            }
+            if(!first.is_byte || !second.is_byte){
+                interpreter_err_in("EXPECTED BYTE ARGUMENT ERROR ('MODULO')", context->name);
+            }
+            return byte_result(first.byte % second.byte);
+        }
+        case OT_MINUS:{
+            Result first = exec_arg(module, context, op.op.op_neq.first);
+            Result second = exec_arg(module, context, op.op.op_neq.second);
+            if(first.is_null || second.is_null){
+                interpreter_err_in("NULL ARGUMENT ERROR ('MINUS')", context->name);
+            }
+            if(!first.is_byte || !second.is_byte){
+                interpreter_err_in("EXPECTED BYTE ARGUMENT ERROR ('MINUS')", context->name);
+            }
+            return byte_result(first.byte - second.byte);
+        }
+        case OT_PLUS:{
+            Result first = exec_arg(module, context, op.op.op_neq.first);
+            Result second = exec_arg(module, context, op.op.op_neq.second);
+            if(first.is_null || second.is_null){
+                interpreter_err_in("NULL ARGUMENT ERROR ('PLUS')", context->name);
+            }
+            if(!first.is_byte || !second.is_byte){
+                interpreter_err_in("EXPECTED BYTE ARGUMENT ERROR ('PLUS')", context->name);
+            }
+            return byte_result(first.byte + second.byte);
+        }
+        case OT_MULTIPLY:{
+            Result first = exec_arg(module, context, op.op.op_neq.first);
+            Result second = exec_arg(module, context, op.op.op_neq.second);
+            if(first.is_null || second.is_null){
+                interpreter_err_in("NULL ARGUMENT ERROR ('MULTIPLY')", context->name);
+            }
+            if(!first.is_byte || !second.is_byte){
+                interpreter_err_in("EXPECTED BYTE ARGUMENT ERROR ('MULTIPLY')", context->name);
+            }
+            return byte_result(first.byte * second.byte);
+        }
+        case OT_DIVIDE:{
+            Result first = exec_arg(module, context, op.op.op_neq.first);
+            Result second = exec_arg(module, context, op.op.op_neq.second);
+            if(first.is_null || second.is_null){
+                interpreter_err_in("NULL ARGUMENT ERROR ('DIVIDE')", context->name);
+            }
+            if(!first.is_byte || !second.is_byte){
+                interpreter_err_in("EXPECTED BYTE ARGUMENT ERROR ('DIVIDE')", context->name);
+            }
+            return byte_result((int) (((float)first.byte) / ((float)second.byte)));
         }
         case OT_STACK:{
             Result first = exec_arg(module, context, op.op.op_stack.first);
@@ -362,7 +409,7 @@ int find_index_of_scope_by_name(Module * module, char * name){
 }
 
 Result execute_whole_scope(Module * context, Scope scope){
-    ActiveScope active_scope = {scope.name, scope.stack, scope.statements, null_result(), 0};
+    ActiveScope active_scope = new_active_scope(scope.name, scope.stack, scope.statements, null_result(), 0);
 
     for(int i=0; i<active_scope.statements.statements_len; i++){
         GenericOp op = active_scope.statements.statements[i];
@@ -386,11 +433,11 @@ Result execute_scope(Module * context, char * scope_name, int is_copy){
     ActiveScope active_scope;
 
     if(is_copy){
-        ActiveScope tmp = {scope.name, new_stack_mem(), scope.statements, null_result(), 0};
+        ActiveScope tmp = new_active_scope(scope.name, new_stack_mem(), scope.statements, null_result(), 0);
         active_scope = tmp;
     }
     else {
-        ActiveScope tmp = {scope.name, scope.stack, scope.statements, null_result(), 0};
+        ActiveScope tmp = new_active_scope(scope.name, scope.stack, scope.statements, null_result(), 0);
         active_scope = tmp;
     }
 
@@ -401,7 +448,7 @@ Result execute_scope(Module * context, char * scope_name, int is_copy){
     }
 
     if(!is_copy){
-        context->scopes.arr[scope_index] = (Scope) {active_scope.name, active_scope.stack, active_scope.statements};
+        context->scopes.arr[scope_index] = new_scope_copy(active_scope.name, active_scope.statements, active_scope.stack);
     }
     else if(is_copy){
         free(active_scope.stack.arr);

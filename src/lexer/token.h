@@ -35,8 +35,13 @@
     x.type == IS_NULL ? "NULL?" :(\
     x.type == STACK ? "STACK" :(\
     x.type == APPLY ? "APPLY" :(\
+    x.type == MINUS ? "MINUS" :(\
+    x.type == PLUS ? "PLUS" :(\
+    x.type == MODULO ? "MODULO" :(\
+    x.type == DIVIDE ? "DIVIDE" :(\
+    x.type == MULTIPLY ? "MULTIPLY" :(\
     "" \
-)))))))))))))))))))))))))))))))))
+))))))))))))))))))))))))))))))))))))))
 
 typedef enum {
    IF,
@@ -72,6 +77,11 @@ typedef enum {
    IS_NULL,
    STACK,
    APPLY,
+   MINUS,
+   PLUS,
+   MODULO,
+   DIVIDE,
+   MULTIPLY
 } TokenType;
 
 typedef struct {

@@ -137,6 +137,26 @@ TokenVector create_tokens(char * prog, int len){
                     tokens[tokens_index] = new_token(APPLY, line_counter);
                     tokens_index += 1;
                 }
+                else if(strcmp(word, "MINUS") == 0){
+                    tokens[tokens_index] = new_token(MINUS, line_counter);
+                    tokens_index += 1;
+                }
+                else if(strcmp(word, "PLUS") == 0){
+                    tokens[tokens_index] = new_token(PLUS, line_counter);
+                    tokens_index += 1;
+                }
+                else if(strcmp(word, "MODULO") == 0){
+                    tokens[tokens_index] = new_token(MODULO, line_counter);
+                    tokens_index += 1;
+                }
+                else if(strcmp(word, "DIVIDE") == 0){
+                    tokens[tokens_index] = new_token(DIVIDE, line_counter);
+                    tokens_index += 1;
+                }
+                else if(strcmp(word, "MULTIPLY") == 0){
+                    tokens[tokens_index] = new_token(MULTIPLY, line_counter);
+                    tokens_index += 1;
+                }
                 else { // must be an identifier then
                     char current_word[word_index+2];
                     memcpy(current_word, word, word_index+1);

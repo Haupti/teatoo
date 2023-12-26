@@ -5,3 +5,8 @@ Scope new_scope(char * name, Statements statements){
     Scope scope = {name, bytes, statements};
     return scope;
 }
+
+Scope new_scope_copy(char * name, Statements statements, ByteVector stack){
+    Scope scope = {name, stack, statements};
+    return scope;
+}

@@ -10,9 +10,9 @@ typedef struct Result {
     char * scope_name;
     int is_copy;
     int is_scope;
-    int is_null;
-    int is_whole_scope;
     Scope scope;
+    int is_whole_scope;
+    int is_null;
 } Result;
 
 Result null_result();

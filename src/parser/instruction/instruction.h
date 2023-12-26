@@ -19,6 +19,11 @@ typedef enum {
     OT_RETURN,
     OT_EXEC,
     OT_STACK,
+    OT_MINUS,
+    OT_PLUS,
+    OT_MULTIPLY,
+    OT_DIVIDE,
+    OT_MODULO,
     OT_OUT,
     OT_OUTCHAR,
     OT_OUTNUM,
@@ -65,6 +70,31 @@ typedef struct Op_STACK {
     struct Argument first;
     struct Argument second;
 } Op_STACK;
+
+typedef struct Op_MINUS {
+    struct Argument first;
+    struct Argument second;
+} Op_MINUS;
+
+typedef struct Op_PLUS {
+    struct Argument first;
+    struct Argument second;
+} Op_PLUS;
+
+typedef struct Op_DIVIDE {
+    struct Argument first;
+    struct Argument second;
+} Op_DIVIDE;
+
+typedef struct Op_MULTIPLY {
+    struct Argument first;
+    struct Argument second;
+} Op_MULTIPLY;
+
+typedef struct Op_MODULO {
+    struct Argument first;
+    struct Argument second;
+} Op_MODULO;
 
 typedef struct Op_NOT {
     struct Argument first;
@@ -122,6 +152,11 @@ union Op {
    struct Op_RETURN op_return;
    struct Op_EXEC op_exec;
    struct Op_STACK op_stack;
+   struct Op_MINUS op_minus;
+   struct Op_MULTIPLY op_multiply;
+   struct Op_PLUS op_plus;
+   struct Op_DIVIDE op_divide;
+   struct Op_MODULO op_modulo;
    struct Op_OUT op_out;
    struct Op_OUTCHAR op_outchar;
    struct Op_OUTNUM op_outnum;
@@ -154,6 +189,11 @@ GenericOp new_neq(Argument arg1, Argument arg2);
 GenericOp new_return(Argument arg);
 GenericOp new_exec(Argument arg);
 GenericOp new_stack(Argument arg1, Argument arg2);
+GenericOp new_minus(Argument arg1, Argument arg2);
+GenericOp new_plus(Argument arg1, Argument arg2);
+GenericOp new_multiply(Argument arg1, Argument arg2);
+GenericOp new_divide(Argument arg1, Argument arg2);
+GenericOp new_modulo(Argument arg1, Argument arg2);
 GenericOp new_pow(Argument arg);
 GenericOp new_is_null(Argument arg);
 GenericOp new_out(Argument arg);

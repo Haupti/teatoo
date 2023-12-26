@@ -44,6 +44,12 @@ MODULAR_DESCRIBE(lexer_tests, {
         Token expected[] = ARRAY(test_token(STACK), test_token(APPLY));
         ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
     })
+    TEST("reads new keywords: MINUS PLUS MODULO MULTIPLY DIVIDE", {
+        char prog[] = "MINUS PLUS MODULO MULTIPLY DIVIDE";
+        TokenVector vec = create_tokens(prog, strlen(prog));
+        Token expected[] = ARRAY(test_token(MINUS), test_token(PLUS), test_token(MODULO), test_token(MULTIPLY), test_token(DIVIDE));
+        ASSERT_ARRS_EQUAL(vec.arr, vec.len, expected, LEN(expected), BY(type));
+    })
     TEST("empty program has no tokens", {
         char prog[] = "";
         TokenVector vec = create_tokens(prog, strlen(prog));

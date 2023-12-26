@@ -12,4 +12,11 @@ typedef struct ActiveScope {
     int is_returned;
 } ActiveScope;
 
+ActiveScope new_active_scope(
+    char * name,
+    ByteVector stack,
+    Statements statements,
+    Result return_result,
+    int is_returned
+);
 #endif

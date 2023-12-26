@@ -102,6 +102,46 @@ GenericOp new_exec(Argument arg){
     return gen_op;
 }
 
+GenericOp new_minus(Argument arg1, Argument arg2){
+    Op_MINUS minus = {arg1, arg2};
+    union Op op;
+    op.op_minus = minus;
+    GenericOp gen_op = {OT_MINUS, op};
+    return gen_op;
+}
+
+GenericOp new_plus(Argument arg1, Argument arg2){
+    Op_PLUS plus = {arg1, arg2};
+    union Op op;
+    op.op_plus = plus;
+    GenericOp gen_op = {OT_PLUS, op};
+    return gen_op;
+}
+
+GenericOp new_multiply(Argument arg1, Argument arg2){
+    Op_MULTIPLY multiply = {arg1, arg2};
+    union Op op;
+    op.op_multiply = multiply;
+    GenericOp gen_op = {OT_MULTIPLY, op};
+    return gen_op;
+}
+
+GenericOp new_divide(Argument arg1, Argument arg2){
+    Op_DIVIDE divide = {arg1, arg2};
+    union Op op;
+    op.op_divide = divide;
+    GenericOp gen_op = {OT_DIVIDE, op};
+    return gen_op;
+}
+
+GenericOp new_modulo(Argument arg1, Argument arg2){
+    Op_MODULO modulo = {arg1, arg2};
+    union Op op;
+    op.op_modulo = modulo;
+    GenericOp gen_op = {OT_MODULO, op};
+    return gen_op;
+}
+
 GenericOp new_stack(Argument arg1, Argument arg2){
     Op_STACK stack = {arg1, arg2};
     union Op op;

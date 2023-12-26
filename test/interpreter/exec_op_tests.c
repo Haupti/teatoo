@@ -322,10 +322,31 @@ MODULAR_DESCRIBE(exec_op_tests, {
 
         Result result = exec_op(&test_module, &active_scope, stack_gen_op);
 
-        ASSERT_INT_EQUALS(result.is_whole_scope, 0);
-        ASSERT_STR_EQUALS(result.scope.name, "test_scope");
-        ASSERT_INT_EQUALS(result.scope.stack.len, 1);
-        ASSERT_INT_EQUALS(result.scope.stack.arr[0], 5)
+        ASSERT_INT_EQUALS(result.is_scope, 1);
+        ASSERT_STR_EQUALS(result.scope_name, "test_scope");
+        ASSERT_INT_EQUALS(scope.stack.len, 1);
+        ASSERT_INT_EQUALS(scope.stack.arr[0], 5)
+    })
+    TEST("executes MODULO, returns result", {
+        Byte stack_vals[] = ARRAY('c', '\0', 255, 'x', 't');
+        Byte * mem = malloc(sizeof(Byte) * (LEN(stack_vals)));
+        memcpy(mem, stack_vals, sizeof(Byte) *(LEN(stack_vals)));
+        ByteVector stack = ARRAY(mem, LEN(stack_vals));
+        ActiveScope active_scope = ARRAY("test_scope", stack, statements, null_result(), 0);
+
+
+        Result result1 = exec_op(&module, &active_scope, new_modulo(new_byte_argument(20), new_byte_argument(3)));
+
+        ASSERT_INT_EQUALS(active_scope.stack.len, 5);
+        ASSERT_INT_EQUALS(result1.is_byte, 1);
+        ASSERT_INT_EQUALS(result1.is_null, 0);
+        ASSERT_INT_EQUALS(result1.byte, 2);
+
+        Result result2 = exec_op(&module, &active_scope, new_modulo(new_byte_argument(20),new_byte_argument(2)));
+
+        ASSERT_INT_EQUALS(result2.is_byte, 1);
+        ASSERT_INT_EQUALS(result2.is_null, 0);
+        ASSERT_INT_EQUALS(result2.byte, 0);
     })
 });
 

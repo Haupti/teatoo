@@ -50,4 +50,16 @@ MODULAR_DESCRIBE(internal_parse_op_tests, {
         ASSERT_INT_EQUALS(op.op.op_stack.second.is_byte, 1);
         ASSERT_INT_EQUALS(op.op.op_stack.second.byte, 0xFF);
     });
+    TEST("parses MODULO", {
+        Token tokens[] = ARRAY(test_token(MODULO), test_token(BYTE_START), test_token(BIT_ON), test_token(BYTE_END), test_token(BYTE_START), test_token(BIT_ON), test_token(BYTE_END));
+        TokenSlice slice = new_token_slice(tokens, LEN(tokens));
+
+        GenericOp op = parse_op(slice);
+
+        ASSERT_EQUALS(op.type, OT_MODULO);
+        ASSERT_INT_EQUALS(op.op.op_modulo.first.is_byte, 1);
+        ASSERT_INT_EQUALS(op.op.op_modulo.first.byte, 0xFF);
+        ASSERT_INT_EQUALS(op.op.op_modulo.second.is_byte, 1);
+        ASSERT_INT_EQUALS(op.op.op_modulo.second.byte, 0xFF);
+    });
 });
