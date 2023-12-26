@@ -303,5 +303,29 @@ MODULAR_DESCRIBE(exec_op_tests, {
         ASSERT_INT_EQUALS(result.byte, 80);
         ASSERT_INT_EQUALS(active_scope.is_returned, 0);
     })
+    TEST("executes STACK on given stack and returns it", {
+        Byte stack_vals[] = ARRAY();
+        Byte * mem = malloc(sizeof(Byte) * (LEN(stack_vals)));
+        memcpy(mem, stack_vals, sizeof(Byte) *(LEN(stack_vals)));
+        ByteVector stack = ARRAY(mem, LEN(stack_vals));
+        Scope scope = ARRAY("test_scope", stack, statements);
+
+        Byte stack_vals_active[] = ARRAY();
+        Byte * mem_active = malloc(sizeof(Byte) * (LEN(stack_vals_active)));
+        memcpy(mem_active, stack_vals_active, sizeof(Byte) *(LEN(stack_vals_active)));
+        ByteVector stack_active = ARRAY(mem_active, LEN(stack_vals_active));
+        ActiveScope active_scope = ARRAY("test_scope_active", stack_active, statements, null_result(), 0);
+
+        GenericOp stack_gen_op = new_stack(new_scope_ref_argument("test_scope"), new_byte_argument(5));
+        ScopeVector scopes = ARRAY(&scope, 1);
+        Module test_module = ARRAY(scopes, (Op_EXEC) {});
+
+        Result result = exec_op(&test_module, &active_scope, stack_gen_op);
+
+        ASSERT_INT_EQUALS(result.is_whole_scope, 0);
+        ASSERT_STR_EQUALS(result.scope.name, "test_scope");
+        ASSERT_INT_EQUALS(result.scope.stack.len, 1);
+        ASSERT_INT_EQUALS(result.scope.stack.arr[0], 5)
+    })
 });
 
