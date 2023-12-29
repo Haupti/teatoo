@@ -2,6 +2,15 @@
 #include "../slice/token_slice.h"
 #include "../error/error.h"
 #include <stdio.h>
+#include <stdlib.h>
+
+void err(char * expected_msg, Token found_token, int pos, int line){
+    printf("ERROR WHILE PARSING BYTE:");
+    printf("%s", expected_msg);
+    printf(" but found %s", TKN_STR(found_token));
+    printf(" at %d in line %d\n", pos, line);
+    exit(EXIT_FAILURE);
+}
 
 Byte parse_byte(TokenSlice slice){
     if(slice.arr[slice.start].type != BYTE_START){
@@ -17,7 +26,7 @@ Byte parse_byte(TokenSlice slice){
             return 0xFF;
         }
         else {
-            err_unexpected_token(slice.arr[slice.start + 1], slice.start+1);
+            err("expected a bit", slice.arr[slice.start+2], slice.start+1, slice.arr[slice.start+2].line_nr);
         }
     }
     else if(slice.arr[slice.start+9].type == BYTE_END){
@@ -28,7 +37,7 @@ Byte parse_byte(TokenSlice slice){
                 c = c | (1 << (7-i));
             }
             else if(slice.arr[i+offset].type != BIT_OFF){
-                err_unexpected_token(slice.arr[i+offset], i+offset);
+                err("expected a bit", slice.arr[i+offset], i+offset, slice.arr[i+offset].line_nr);
             }
         }
         return c;

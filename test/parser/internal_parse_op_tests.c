@@ -62,4 +62,13 @@ MODULAR_DESCRIBE(internal_parse_op_tests, {
         ASSERT_INT_EQUALS(op.op.op_modulo.second.is_byte, 1);
         ASSERT_INT_EQUALS(op.op.op_modulo.second.byte, 0xFF);
     });
+    TEST("parses complex op", {
+        Token tokens[] = ARRAY(test_token(PUT), test_token(GRP_OPEN), test_token(EQ), test_token(GRP_OPEN),test_token(MODULO), test_token(GRP_OPEN), test_token(PEEK), test_token(GRP_CLOSE), test_token(BYTE_START), test_token(BIT_OFF), test_token(BYTE_END), test_token(GRP_CLOSE), test_token(BYTE_START), test_token(BIT_OFF), test_token(BYTE_END), test_token(GRP_CLOSE));
+
+        TokenSlice slice = new_token_slice(tokens, LEN(tokens));
+
+        GenericOp op = parse_op(slice);
+
+        ASSERT_EQUALS(op.type, OT_PUT);
+    })
 });
