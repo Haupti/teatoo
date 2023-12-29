@@ -33,9 +33,6 @@ void check_expect_scope(Argument arg){
     if(arg.is_byte){
         interpreter_err("expected a scope argument, found byte");
     }
-    else if(arg.is_sequence){
-        interpreter_err("expected a scope argument, found sequence");
-    }
 }
 
 Result exec_arg(Module * module, ActiveScope * context, Argument arg);
@@ -352,7 +349,7 @@ Result exec_op(Module * module, ActiveScope * context, GenericOp op){
                 interpreter_err_in("NULL ARGUMENT ERROR ('EXEC')", context->name);
             }
             else if(!first.is_scope && !first.is_whole_scope){
-                interpreter_err_in("EXECTED AN SCOPE REFERENCE, BUT WAS BYTE ('EXEC')", context->name);
+                interpreter_err_in("EXECTED AN SCOPE REFERENCE, BUT WAS BYTE ('EXEC')", "module");
             }
 
             if(first.is_scope){
@@ -463,7 +460,10 @@ Result execute_scope(Module * context, char * scope_name, int is_copy){
 
 Result interpret_exec(Module * context, Op_EXEC exec){
     check_expect_scope(exec.first);
-    return execute_scope(context, exec.first.scope_name, exec.first.is_copy_ref);
+    GenericOp op_exec = new_exec(exec.first);
+    Statements statements = {NULL, 0};
+    ActiveScope module_as_scope = new_active_scope("module", new_stack_mem(), statements, null_result(), 0);
+    return exec_op(context, &module_as_scope, op_exec);
 }
 
 int interpret(Module * mod){
